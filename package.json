@@ -1,0 +1,12 @@
+{
+  "name": "project-validator",
+  "version": "1.0.0",
+  "description": "Project Idea Validation & Decision Framework",
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css",
+    "watch:css": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

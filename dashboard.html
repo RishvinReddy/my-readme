@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Dashboard - Project Validator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen">
+  
+  <!-- Navigation -->
+  <nav class="glass sticky top-0 z-50 w-full px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="ph ph-rocket-launch text-3xl text-primary-500"></i>
+        <a href="index.html" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Project Validator AI</a>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="analyze.html" class="nav-link">Analyze</a>
+        <a href="saved.html" class="nav-link">Saved Projects</a>
+        <a href="compare.html" class="nav-link">Compare</a>
+      </div>
+      <button id="mobileMenuBtn" class="md:hidden text-slate-300">
+        <i class="ph ph-list text-2xl"></i>
+      </button>
+    </div>
+  </nav>
+
+  <main class="flex-grow flex flex-col items-center py-12 px-4 relative overflow-hidden">
+    <div class="absolute top-20 right-20 w-96 h-96 bg-primary-600/15 rounded-full blur-[120px] -z-10 animate-drift pointer-events-none"></div>
+    <div class="absolute bottom-20 left-20 w-96 h-96 bg-accent-500/10 rounded-full blur-[100px] -z-10 animate-spin-slow pointer-events-none"></div>
+
+    <div class="max-w-6xl w-full relative z-10">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <a href="saved.html" class="text-primary-500 hover:text-primary-400 text-sm flex items-center gap-1 mb-4">
+            <i class="ph ph-arrow-left"></i> Back to Saved
+          </a>
+          <h1 id="dbProjectName" class="text-3xl md:text-5xl font-bold text-white mb-2">Loading...</h1>
+          <p id="dbProjectIdea" class="text-slate-400 text-lg">---</p>
+        </div>
+        <div class="flex gap-3 mt-4 md:mt-0">
+          <button id="downloadPdfBtn" class="btn-secondary py-2 px-4">
+            <i class="ph ph-download"></i> PDF
+          </button>
+          <a href="analyze.html" class="btn-primary py-2 px-4">New Project</a>
+        </div>
+      </div>
+
+      <div id="exportableDashboard">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        
+        <!-- Score Overview (Left Column) -->
+        <div class="lg:col-span-1 space-y-6">
+          <div class="glass-card p-6 flex flex-col items-center justify-center relative overflow-hidden">
+            <div id="verdictBg" class="absolute inset-0 bg-primary-600/10 blur-[50px] -z-10"></div>
+            <p class="text-slate-400 font-medium mb-2 uppercase tracking-widest text-sm">Final Score</p>
+            <div class="relative flex items-center justify-center w-40 h-40 mb-4">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="8"></circle>
+                <circle id="scoreCircle" cx="50" cy="50" r="45" fill="none" stroke="#8b5cf6" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="283" stroke-linecap="round" class="transition-all duration-1000"></circle>
+              </svg>
+              <div class="absolute flex flex-col items-center">
+                <span id="dbScore" class="text-5xl font-bold text-white">0</span>
+                <span class="text-slate-500 text-sm">/100</span>
+              </div>
+            </div>
+            <div id="dbVerdict" class="px-4 py-2 rounded-xl font-bold text-lg text-center w-full bg-slate-800 text-slate-300">
+              ANALYZING
+            </div>
+          </div>
+
+          <div class="glass-card p-6">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+              <i class="ph-fill ph-target text-accent-500"></i> Breakdown
+            </h3>
+            <ul class="space-y-4">
+              <li class="flex justify-between items-center">
+                <span class="text-slate-400">Project Type</span>
+                <span id="dbType" class="text-white font-medium bg-dark-900 px-3 py-1 rounded-md">--</span>
+              </li>
+              <li class="flex justify-between items-center">
+                <span class="text-slate-400">Target Tier</span>
+                <span id="dbTier" class="text-white font-medium bg-dark-900 px-3 py-1 rounded-md">--</span>
+              </li>
+              <li class="flex justify-between items-center">
+                <span class="text-slate-400">Domain</span>
+                <span id="dbDomain" class="text-white font-medium bg-dark-900 px-3 py-1 rounded-md">--</span>
+              </li>
+              <li class="flex justify-between items-center">
+                <span class="text-slate-400">Deployment</span>
+                <span id="dbDeployment" class="text-white font-medium bg-dark-900 px-3 py-1 rounded-md">--</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Radar Chart and Details (Right Column) -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="glass-card p-6 h-[400px] flex flex-col">
+            <h3 class="text-white font-bold mb-2 flex items-center gap-2">
+              <i class="ph-fill ph-chart-polar text-primary-500"></i> Feasibility Matrix
+            </h3>
+            <div class="flex-grow relative">
+              <canvas id="radarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-card p-6">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+              <i class="ph-fill ph-magnifying-glass text-emerald-500"></i> Strategic Analysis
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">Problem Statement</p>
+                <p id="dbProblem" class="text-slate-200">--</p>
+              </div>
+              <div>
+                <p class="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">Unique Angle</p>
+                <p id="dbAngle" class="text-slate-200">--</p>
+              </div>
+              <div class="md:col-span-2">
+                <p class="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">AI Integration Strategy</p>
+                <p id="dbAi" class="text-slate-200">--</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2 Additions: Competitors and MVP Roadmap -->
+      <div id="exportableLower" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        
+        <!-- Competitor Analysis Table -->
+        <div class="glass-card p-6">
+          <h3 class="text-white font-bold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+            <i class="ph-fill ph-users text-rose-500"></i> Competitor Analysis
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm text-slate-300">
+              <thead>
+                <tr class="bg-slate-800/50 border-b border-slate-700">
+                  <th class="p-3 text-slate-400 font-medium">Competitor</th>
+                  <th class="p-3 text-slate-400 font-medium">Strengths</th>
+                  <th class="p-3 text-slate-400 font-medium">Weaknesses</th>
+                </tr>
+              </thead>
+              <tbody id="dbCompetitors">
+                <!-- Injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 10-Phase Interactive MVP Kanban -->
+        <div class="glass-card p-6 lg:col-span-2">
+          <h3 class="text-white font-bold mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
+            <i class="ph-fill ph-kanban text-accent-400"></i> Interactive MVP Kanban Board
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="dbKanbanBoard">
+            <!-- To Do -->
+            <div class="bg-dark-800/30 rounded-xl p-3 border border-white/5 min-h-[200px]" id="kanban-todo" data-status="todo">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">To Do</h4>
+            </div>
+            <!-- In Progress -->
+            <div class="bg-dark-800/30 rounded-xl p-3 border border-white/5 min-h-[200px]" id="kanban-progress" data-status="progress">
+              <h4 class="text-xs font-bold text-primary-400 uppercase tracking-wider mb-3">In Progress</h4>
+            </div>
+            <!-- Done -->
+            <div class="bg-dark-800/30 rounded-xl p-3 border border-white/5 min-h-[200px]" id="kanban-done" data-status="done">
+              <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">Done</h4>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Phase 3 Advanced Additions -->
+      <div id="exportablePhase3" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        
+        <!-- Break Even Analysis -->
+        <div class="glass-card p-6">
+          <h3 class="text-white font-bold mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
+            <i class="ph-fill ph-coin text-emerald-400"></i> Break-Even Analysis
+          </h3>
+          <div id="dbFinancials" class="text-slate-300 text-sm">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Tech Stack Recommender -->
+        <div class="glass-card p-6">
+          <h3 class="text-white font-bold mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
+            <i class="ph-fill ph-code text-accent-400"></i> Recommended Stack
+          </h3>
+          <div id="dbTechStack" class="flex flex-wrap gap-2">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Roast My Idea -->
+        <div class="glass-card p-6 border-rose-500/30 bg-rose-500/5">
+          <h3 class="text-white font-bold mb-4 flex items-center gap-2 border-b border-rose-500/20 pb-2">
+            <i class="ph-fill ph-fire text-rose-500"></i> AI Startup Roast
+          </h3>
+          <p id="dbRoast" class="text-rose-200/90 text-sm italic">
+            <!-- Injected by JS -->
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="./assets/js/storage.js"></script>
+  <script src="./assets/js/main.js"></script>
+  <script src="./assets/js/dashboard.js"></script>
+</body>
+</html>

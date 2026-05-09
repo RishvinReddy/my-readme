@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyze Project - Project Validator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen">
+  
+  <!-- Navigation -->
+  <nav class="glass sticky top-0 z-50 w-full px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="ph ph-rocket-launch text-3xl text-primary-500"></i>
+        <a href="index.html" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Project Validator AI</a>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="analyze.html" class="nav-link active">Analyze</a>
+        <a href="saved.html" class="nav-link">Saved Projects</a>
+        <a href="compare.html" class="nav-link">Compare</a>
+      </div>
+      <button id="mobileMenuBtn" class="md:hidden text-slate-300">
+        <i class="ph ph-list text-2xl"></i>
+      </button>
+    </div>
+  </nav>
+
+  <main class="flex-grow flex flex-col items-center py-12 px-4 relative overflow-hidden">
+    <!-- Background Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-primary-600/20 rounded-full blur-[120px] -z-10 animate-drift pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-accent-500/10 rounded-full blur-[100px] -z-10 animate-spin-slow pointer-events-none"></div>
+
+    <div class="max-w-4xl w-full relative z-10">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white flex items-center gap-3 fade-up-element visible">
+          <i class="ph-fill ph-magic-wand text-primary-500"></i>
+          Analyze New Project Idea
+        </h1>
+        <p class="text-slate-400 mt-2 fade-up-element visible" style="transition-delay: 100ms;">Fill out the framework below to generate your final viability scorecard.</p>
+      </div>
+
+      <!-- Wizard Progress -->
+      <div class="mb-8 fade-up-element visible" style="transition-delay: 200ms;">
+        <div class="flex justify-between mb-2">
+          <span id="stepLabel1" class="text-xs font-bold text-primary-400 uppercase tracking-wider">Concept</span>
+          <span id="stepLabel2" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tech</span>
+          <span id="stepLabel3" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Market</span>
+          <span id="stepLabel4" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Finance</span>
+          <span id="stepLabel5" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Score</span>
+        </div>
+        <div class="h-2 bg-dark-800 rounded-full overflow-hidden flex border border-white/5">
+          <div id="progressBar" class="h-full bg-gradient-to-r from-primary-600 to-primary-400 w-1/5 transition-all duration-500"></div>
+        </div>
+      </div>
+
+      <form id="analyzeForm" class="relative">
+        
+        <!-- STEP 1: Basic Info Section -->
+        <section id="step1" class="glass-card p-6 md:p-8 animate-fade-in-up">
+          <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-700 pb-2">1. Basic Concept</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="label-text">Project Name</label>
+              <input type="text" id="projectName" required class="input-field" placeholder="e.g., IdeaForge">
+            </div>
+            <div>
+              <label class="label-text">Project Type</label>
+              <select id="projectType" required class="input-field">
+                <option value="Portfolio">Portfolio Project</option>
+                <option value="Startup">Startup / SaaS</option>
+                <option value="Research">Research / Academic</option>
+                <option value="Internship">Internship / Capstone</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="label-text">One-Line Idea</label>
+              <input type="text" id="oneLineIdea" required class="input-field" placeholder="Explain it in one simple sentence...">
+            </div>
+            <div class="md:col-span-2">
+              <label class="label-text">Problem Statement</label>
+              <textarea id="problemStatement" required class="input-field h-24" placeholder="What exact problem does it solve?"></textarea>
+            </div>
+            <div class="md:col-span-2">
+              <label class="label-text">Your Unique Angle</label>
+              <textarea id="uniqueAngle" required class="input-field h-24" placeholder="Why is your version better/different than existing solutions?"></textarea>
+            </div>
+          </div>
+          <div class="flex justify-end mt-8">
+            <button type="button" class="btn-primary next-step" data-target="2">Next Step <i class="ph ph-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <!-- STEP 2: Technical Stack -->
+        <section id="step2" class="glass-card p-6 md:p-8 hidden">
+          <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-700 pb-2">2. Technical Overview</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="label-text">Core Domain</label>
+              <input type="text" id="domain" class="input-field" placeholder="AI, SaaS, Blockchain, IoT...">
+            </div>
+            <div>
+              <label class="label-text">Deployment Platform</label>
+              <select id="deployment" class="input-field">
+                <option value="Vercel">Vercel</option>
+                <option value="AWS">AWS</option>
+                <option value="GitHub Pages">GitHub Pages</option>
+                <option value="Firebase">Firebase</option>
+                <option value="Render">Render</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="label-text">AI Integration Details (If any)</label>
+              <textarea id="aiIntegration" class="input-field h-20" placeholder="GPT, RAG, Vision API, Agents..."></textarea>
+            </div>
+          </div>
+          <div class="flex justify-between mt-8">
+            <button type="button" class="btn-secondary prev-step" data-target="1"><i class="ph ph-arrow-left"></i> Back</button>
+            <button type="button" class="btn-primary next-step" data-target="3">Next Step <i class="ph ph-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <!-- STEP 3: Competitor Analysis -->
+        <section id="step3" class="glass-card p-6 md:p-8 hidden">
+          <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-700 pb-2">3. Competitor Analysis</h2>
+          <div id="competitorsContainer" class="space-y-4">
+            <!-- Competitor Rows Injected Here -->
+          </div>
+          <button type="button" id="addCompetitorBtn" class="btn-secondary mt-4 text-sm py-2">
+            <i class="ph ph-plus"></i> Add Competitor
+          </button>
+          <div class="flex justify-between mt-8">
+            <button type="button" class="btn-secondary prev-step" data-target="2"><i class="ph ph-arrow-left"></i> Back</button>
+            <button type="button" class="btn-primary next-step" data-target="4">Next Step <i class="ph ph-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <!-- STEP 4: Financials & Monetization -->
+        <section id="step4" class="glass-card p-6 md:p-8 hidden">
+          <h2 class="text-xl font-bold text-white mb-6 border-b border-white/10 pb-2">4. Financial Projections</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="label-text">Estimated Monthly Costs ($)</label>
+              <input type="number" id="estCosts" min="0" placeholder="e.g. 50 (Vercel, DB, OpenAI)" class="input-field">
+            </div>
+            <div>
+              <label class="label-text">Expected Revenue per User/Mo ($)</label>
+              <input type="number" id="estRev" min="0" placeholder="e.g. 15" class="input-field">
+            </div>
+          </div>
+          <div class="flex justify-between mt-8">
+            <button type="button" class="btn-secondary prev-step" data-target="3"><i class="ph ph-arrow-left"></i> Back</button>
+            <button type="button" class="btn-primary next-step" data-target="5">Next Step <i class="ph ph-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <!-- STEP 5: Scorecard Generator Section -->
+        <section id="step5" class="glass-card p-6 md:p-8 hidden">
+          <h2 class="text-xl font-bold text-white mb-2 border-b border-white/10 pb-2 flex justify-between items-end">
+            <span>5. Decision Scorecard</span>
+            <span class="text-sm font-normal text-slate-400">Score 1 (Low) to 10 (High)</span>
+          </h2>
+          
+          <div id="scorecardFields" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mt-6">
+            <!-- Dynamically injected by JS -->
+          </div>
+          
+          <div class="flex justify-between mt-8">
+            <button type="button" class="btn-secondary prev-step" data-target="4"><i class="ph ph-arrow-left"></i> Back</button>
+            <button type="submit" class="btn-primary" id="calculateBtn">
+              <i class="ph-bold ph-calculator"></i>
+              Calculate Verdict
+            </button>
+          </div>
+        </section>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="./assets/js/storage.js"></script>
+  <script src="./assets/js/main.js"></script>
+  <script src="./assets/js/analyze.js"></script>
+</body>
+</html>
