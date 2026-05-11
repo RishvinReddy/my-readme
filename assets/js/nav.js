@@ -1,395 +1,278 @@
-/* nav.js — Universal Premium Navigation
-   Auto-injects into every page, removes old nav, handles auth state */
+/* nav.js — Centered Floating Pill Navigation */
 (function () {
-  const PAGES = [
-    { href: 'index.html',       label: 'Home',      icon: 'ph-house' },
-    { href: 'analyze.html',     label: 'Analyze',   icon: 'ph-clipboard' },
-    { href: 'saved.html',       label: 'Saved',     icon: 'ph-folder-open' },
-    { href: 'compare.html',     label: 'Compare',   icon: 'ph-scales' },
-    { href: 'marketplace.html', label: 'Marketplace',icon:'ph-storefront' },
-  ];
-  const TOOLS = [
-    { href:'roadmap.html',    label:'Roadmap Generator',  icon:'ph-fill ph-map-trifold',  color:'var(--color-p4-deepteal)' },
-    { href:'prd.html',        label:'PRD Generator',      icon:'ph-fill ph-file-text',    color:'var(--color-p2-lightblue)' },
-    { href:'github.html',     label:'GitHub Analyzer',    icon:'ph-fill ph-github-logo',  color:'var(--color-p1-teal)' },
-    { href:'hackathon.html',  label:'Hackathon Mode',     icon:'ph-fill ph-timer',        color:'var(--color-p3-coralred)' },
-    null,
-    { href:'collaborate.html',label:'Team Collaborate',   icon:'ph-fill ph-users-three',  color:'var(--color-p6-periwinkle)' },
-  ];
+  const cur = window.location.pathname.split('/').pop() || 'index.html';
+  const active = h => cur === h || (cur === '' && h === 'index.html') ? 'nav-active' : '';
 
-  function currentPage() {
-    return window.location.pathname.split('/').pop() || 'index.html';
-  }
-  function isActive(href) {
-    const cur = currentPage();
-    return cur === href || (cur === '' && href === 'index.html');
-  }
-
-  function buildNav() {
-    const cur = currentPage();
-    const mainLinks = PAGES.map(p => `
-      <a href="${p.href}" class="nav-top-link ${isActive(p.href)?'nav-active':''}">
-        <i class="${p.icon} nav-link-icon"></i>
-        ${p.label}
-        ${isActive(p.href) ? '<span class="nav-active-dot"></span>' : ''}
-      </a>`).join('');
-
-    const toolItems = TOOLS.map(t => t === null
-      ? '<div class="nav-drop-divider"></div>'
-      : `<a href="${t.href}" class="nav-drop-item ${isActive(t.href)?'nav-drop-active':''}">
-           <span class="nav-drop-icon" style="color:${t.color};"><i class="${t.icon}"></i></span>
-           ${t.label}
-         </a>`).join('');
-
-    return `
+  const CSS = `
 <style>
-/* ── Nav Reset & Base ───────────────────────────────────── */
-#site-nav *{box-sizing:border-box;margin:0;padding:0;}
-#site-nav{
-  position:sticky;top:0;z-index:999;width:100%;
-  background:rgba(6,6,15,0.88);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,131,36,.15);
-  font-family:'Inter',sans-serif;
-}
-#site-nav::after{
-  content:'';display:block;height:1px;
-  background:linear-gradient(90deg,transparent,var(--color-p1-orange,#FF8324) 30%,var(--color-p4-deepteal,#0091B9) 70%,transparent);
-}
-
-/* ── Inner Bar ──────────────────────────────────────────── */
-.nav-inner{
-  max-width:1280px;margin:0 auto;
-  padding:0 24px;height:64px;
+#site-nav{position:sticky;top:16px;z-index:999;display:flex;justify-content:center;padding:0 16px;pointer-events:none;font-family:'Inter',sans-serif;}
+.nav-pill{
+  pointer-events:all;
   display:flex;align-items:center;gap:0;
+  background:rgba(12,12,22,0.92);
+  border:1px solid rgba(255,131,36,.2);
+  border-radius:100px;
+  padding:6px 8px 6px 14px;
+  box-shadow:0 4px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  max-width:760px;width:100%;
+  position:relative;
 }
+/* Logo */
+.np-logo{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:16px;flex-shrink:0;}
+.np-logo-icon{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--color-p1-orange,#FF8324),var(--color-p2-coral,#FF6B45));display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(255,131,36,.4);transition:transform .3s,box-shadow .3s;}
+.np-logo:hover .np-logo-icon{transform:rotate(-10deg) scale(1.08);box-shadow:0 0 24px rgba(255,131,36,.6);}
+.np-logo-icon i{font-size:17px;color:#fff;}
+.np-logo-text{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;background:linear-gradient(90deg,#fff,var(--color-p6-lightorange,#F8A679));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;}
+/* Links */
+.np-links{display:flex;align-items:center;gap:2px;flex:1;}
+.np-link{position:relative;display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:100px;color:#94a3b8;font-size:13px;font-weight:500;text-decoration:none;transition:all .2s;white-space:nowrap;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;}
+.np-link:hover,.np-link.nav-active{color:#fff;background:rgba(255,255,255,.07);}
+.np-link .caret{font-size:10px;transition:transform .25s;}
+.np-link.dd-open .caret{transform:rotate(180deg);}
+.np-link-dot{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--color-p1-orange,#FF8324);}
+/* Right */
+.np-right{display:flex;align-items:center;gap:8px;margin-left:8px;flex-shrink:0;}
+.np-signin{color:#94a3b8;font-size:13px;font-weight:500;text-decoration:none;padding:7px 12px;border-radius:100px;transition:all .2s;}
+.np-signin:hover{color:#fff;background:rgba(255,255,255,.07);}
+.np-cta{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:100px;background:linear-gradient(135deg,var(--color-p1-orange,#FF8324),var(--color-p2-coral,#FF6B45));color:#fff;font-size:13px;font-weight:600;text-decoration:none;transition:all .25s;white-space:nowrap;border:none;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 0 16px rgba(255,131,36,.3);}
+.np-cta:hover{box-shadow:0 0 26px rgba(255,131,36,.55);transform:scale(1.03);}
+.np-avatar{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,131,36,.5);background:linear-gradient(135deg,var(--color-p1-orange),var(--color-p4-deepteal,#0091B9));display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:border-color .2s;position:relative;}
+.np-avatar:hover{border-color:var(--color-p1-orange);}
+/* Avatar dropdown */
+.np-avatar-wrap{position:relative;}
+.np-avatar-menu{position:absolute;top:calc(100% + 14px);right:0;width:200px;background:rgba(10,10,20,.97);border:1px solid rgba(255,131,36,.18);border-radius:16px;padding:8px;box-shadow:0 16px 48px rgba(0,0,0,.7);opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .2s;backdrop-filter:blur(24px);}
+.np-avatar-wrap.open .np-avatar-menu{opacity:1;visibility:visible;transform:translateY(0);}
+.np-am-head{padding:10px 12px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06);}
+.np-am-head p{font-size:13px;font-weight:600;color:#fff;}
+.np-am-head span{font-size:11px;color:#475569;}
+.np-am-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:#94a3b8;font-size:13px;text-decoration:none;transition:all .15s;background:none;border:none;width:100%;text-align:left;cursor:pointer;font-family:'Inter',sans-serif;}
+.np-am-link:hover{background:rgba(255,255,255,.06);color:#fff;}
 
-/* ── Logo ───────────────────────────────────────────────── */
-.nav-logo{
-  display:flex;align-items:center;gap:10px;text-decoration:none;
-  flex-shrink:0;margin-right:32px;
-}
-.nav-logo-icon{
-  width:36px;height:36px;border-radius:10px;
-  background:linear-gradient(135deg,var(--color-p1-orange,#FF8324),var(--color-p2-coral,#FF6B45));
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 16px rgba(255,131,36,.35);
-  transition:box-shadow .3s,transform .3s;
-}
-.nav-logo:hover .nav-logo-icon{box-shadow:0 0 28px rgba(255,131,36,.6);transform:rotate(-8deg) scale(1.05);}
-.nav-logo-icon i{font-size:20px;color:#fff;}
-.nav-logo-text{
-  font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;
-  background:linear-gradient(90deg,#fff 0%,var(--color-p6-lightorange,#F8A679) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;white-space:nowrap;
-}
-
-/* ── Main Links ─────────────────────────────────────────── */
-.nav-links{display:flex;align-items:center;gap:2px;flex:1;}
-.nav-top-link{
-  position:relative;display:flex;align-items:center;gap:6px;
-  padding:8px 13px;border-radius:10px;
-  color:#94a3b8;font-size:13.5px;font-weight:500;
-  text-decoration:none;transition:all .2s;white-space:nowrap;
-}
-.nav-top-link:hover{color:#fff;background:rgba(255,255,255,.05);}
-.nav-active{color:#fff !important;}
-.nav-link-icon{font-size:14px;opacity:.7;}
-.nav-active-dot{
-  position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
-  width:16px;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,var(--color-p1-orange,#FF8324),var(--color-p2-coral,#FF6B45));
-}
-
-/* ── Tools Dropdown ─────────────────────────────────────── */
-.nav-tools-wrap{position:relative;}
-.nav-tools-btn{
-  display:flex;align-items:center;gap:6px;
-  padding:8px 13px;border-radius:10px;border:none;cursor:pointer;
-  background:rgba(255,131,36,.06);border:1px solid rgba(255,131,36,.18);
-  color:var(--color-p6-lightorange,#F8A679);font-size:13.5px;font-weight:500;
-  transition:all .2s;font-family:'Inter',sans-serif;
-}
-.nav-tools-btn:hover{background:rgba(255,131,36,.12);border-color:rgba(255,131,36,.35);}
-.nav-tools-btn .caret{font-size:11px;transition:transform .25s;}
-.nav-tools-open .caret{transform:rotate(180deg);}
-.nav-dropdown{
-  position:absolute;top:calc(100% + 12px);right:0;width:230px;
-  background:rgba(10,10,20,.96);border:1px solid rgba(255,131,36,.18);
-  border-radius:16px;padding:8px;
-  box-shadow:0 16px 48px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04);
-  opacity:0;visibility:hidden;transform:translateY(-8px);
-  transition:all .25s cubic-bezier(.16,1,.3,1);
+/* ── MEGA DROPDOWN ─────────────────────────────────── */
+.np-mega{
+  position:absolute;top:calc(100% + 14px);left:50%;transform:translateX(-50%) translateY(-8px);
+  width:600px;background:rgba(10,10,22,.97);
+  border:1px solid rgba(255,131,36,.15);border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.03);
   backdrop-filter:blur(24px);
+  opacity:0;visibility:hidden;
+  transition:all .25s cubic-bezier(.16,1,.3,1);
+  padding:0;overflow:hidden;pointer-events:none;
 }
-.nav-tools-open .nav-dropdown{opacity:1;visibility:visible;transform:translateY(0);}
-.nav-drop-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 12px;border-radius:10px;
-  color:#94a3b8;font-size:13px;text-decoration:none;
-  transition:all .15s;
-}
-.nav-drop-item:hover{background:rgba(255,255,255,.05);color:#fff;}
-.nav-drop-active{color:#fff;background:rgba(255,131,36,.07);}
-.nav-drop-icon{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
-.nav-drop-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 0;}
+.np-mega.mega-open{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);pointer-events:all;}
+/* Grid */
+.mega-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.mega-col{padding:20px;}
+.mega-col + .mega-col{border-left:1px solid rgba(255,255,255,.05);}
+.mega-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#475569;font-weight:600;margin-bottom:12px;}
+.mega-card{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;text-decoration:none;transition:all .18s;margin-bottom:4px;}
+.mega-card:hover{background:rgba(255,255,255,.05);}
+.mega-card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;}
+.mega-card-text p{font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:2px;}
+.mega-card-text span{font-size:11px;color:#64748b;line-height:1.4;}
+/* Footer bar */
+.mega-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.015);}
+.mega-footer-left{display:flex;align-items:center;gap:10px;}
+.mega-footer-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,131,36,.1);border:1px solid rgba(255,131,36,.2);display:flex;align-items:center;justify-content:center;color:var(--color-p1-orange);}
+.mega-footer-left p{font-size:13px;font-weight:600;color:#fff;}
+.mega-footer-left span{font-size:11px;color:#64748b;}
+.mega-footer-btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:100px;background:rgba(255,131,36,.1);border:1px solid rgba(255,131,36,.25);color:var(--color-p6-lightorange);font-size:12px;font-weight:600;text-decoration:none;transition:all .2s;white-space:nowrap;}
+.mega-footer-btn:hover{background:rgba(255,131,36,.2);border-color:rgba(255,131,36,.45);}
 
-/* ── Right Auth ─────────────────────────────────────────── */
-.nav-right{display:flex;align-items:center;gap:10px;margin-left:16px;flex-shrink:0;}
-.nav-signin{
-  display:flex;align-items:center;gap:7px;
-  padding:8px 18px;border-radius:10px;
-  background:linear-gradient(135deg,var(--color-p1-orange,#FF8324),var(--color-p2-coral,#FF6B45));
-  border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;
-  text-decoration:none;transition:all .25s;font-family:'Inter',sans-serif;
-  box-shadow:0 0 18px rgba(255,131,36,.25);
-}
-.nav-signin:hover{box-shadow:0 0 28px rgba(255,131,36,.5);transform:translateY(-1px);}
-.nav-avatar{
-  width:36px;height:36px;border-radius:10px;border:2px solid rgba(255,131,36,.4);
-  background:linear-gradient(135deg,var(--color-p1-orange),var(--color-p4-deepteal,#0091B9));
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:14px;font-weight:700;cursor:pointer;
-  position:relative;transition:border-color .2s;
-}
-.nav-avatar:hover{border-color:var(--color-p1-orange);}
-.nav-avatar-menu{
-  position:absolute;top:calc(100% + 10px);right:0;width:200px;
-  background:rgba(10,10,20,.96);border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;padding:8px;
-  box-shadow:0 16px 48px rgba(0,0,0,.6);
-  opacity:0;visibility:hidden;transform:translateY(-6px);
-  transition:all .2s;backdrop-filter:blur(24px);
-}
-.nav-avatar-wrap{position:relative;}
-.nav-avatar-wrap.open .nav-avatar-menu{opacity:1;visibility:visible;transform:translateY(0);}
-.nav-avatar-name{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:6px;}
-.nav-avatar-name p{font-size:13px;font-weight:600;color:#fff;}
-.nav-avatar-name span{font-size:11px;color:#475569;}
-.nav-avatar-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:#94a3b8;font-size:13px;text-decoration:none;transition:all .15s;}
-.nav-avatar-link:hover{background:rgba(255,255,255,.05);color:#fff;}
-.nav-signout{background:none;border:none;width:100%;text-align:left;cursor:pointer;font-family:'Inter',sans-serif;}
-
-/* ── Mobile Hamburger ───────────────────────────────────── */
-.nav-hamburger{
-  display:none;flex-direction:column;gap:5px;cursor:pointer;
-  background:none;border:none;padding:8px;border-radius:8px;
-  transition:background .2s;margin-left:auto;
-}
-.nav-hamburger:hover{background:rgba(255,255,255,.05);}
-.ham-line{width:22px;height:2px;background:#94a3b8;border-radius:2px;transition:all .3s;}
-.nav-hamburger.open .ham-line:nth-child(1){transform:translateY(7px) rotate(45deg);background:var(--color-p1-orange);}
-.nav-hamburger.open .ham-line:nth-child(2){opacity:0;}
-.nav-hamburger.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);background:var(--color-p1-orange);}
-
-/* ── Mobile Drawer ──────────────────────────────────────── */
-.nav-drawer{
-  position:fixed;inset:0;z-index:998;
-  opacity:0;visibility:hidden;transition:all .3s;
-}
+/* Mobile */
+.np-hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:8px;margin-left:auto;}
+.ham{width:18px;height:2px;background:#94a3b8;border-radius:2px;transition:all .3s;}
+.np-hamburger.open .ham:nth-child(1){transform:translateY(6px) rotate(45deg);background:var(--color-p1-orange);}
+.np-hamburger.open .ham:nth-child(2){opacity:0;}
+.np-hamburger.open .ham:nth-child(3){transform:translateY(-6px) rotate(-45deg);background:var(--color-p1-orange);}
+.nav-drawer{position:fixed;inset:0;z-index:998;opacity:0;visibility:hidden;transition:all .3s;}
 .nav-drawer.open{opacity:1;visibility:visible;}
-.nav-drawer-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);}
-.nav-drawer-panel{
-  position:absolute;top:0;right:0;bottom:0;width:280px;
-  background:rgba(8,8,18,.97);border-left:1px solid rgba(255,131,36,.15);
-  padding:24px;overflow-y:auto;
-  transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);
-  display:flex;flex-direction:column;gap:6px;
-}
+.nav-drawer-bg{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);}
+.nav-drawer-panel{position:absolute;top:0;right:0;bottom:0;width:270px;background:rgba(8,8,18,.98);border-left:1px solid rgba(255,131,36,.15);padding:20px;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);}
 .nav-drawer.open .nav-drawer-panel{transform:translateX(0);}
-.nav-drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06);}
-.nav-drawer-logo{display:flex;align-items:center;gap:8px;}
-.nav-drawer-logo i{font-size:22px;color:var(--color-p1-orange);}
-.nav-drawer-logo span{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:#fff;}
-.nav-drawer-close{background:none;border:none;color:#64748b;cursor:pointer;font-size:20px;padding:4px;}
-.drawer-section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#334155;font-weight:600;padding:12px 8px 6px;}
-.drawer-link{
-  display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-radius:10px;text-decoration:none;color:#94a3b8;
-  font-size:14px;transition:all .15s;
-}
-.drawer-link:hover{background:rgba(255,255,255,.05);color:#fff;}
-.drawer-link.active{background:rgba(255,131,36,.08);color:var(--color-p6-lightorange);border:1px solid rgba(255,131,36,.15);}
-.drawer-link i{font-size:16px;width:20px;text-align:center;}
-.drawer-divider{height:1px;background:rgba(255,255,255,.05);margin:8px 0;}
-.drawer-cta{
-  margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);
-}
+.drawer-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06);}
+.drawer-close{background:none;border:none;color:#64748b;cursor:pointer;font-size:18px;}
+.drawer-lbl{font-size:10px;color:#334155;text-transform:uppercase;letter-spacing:.07em;font-weight:600;padding:10px 8px 6px;}
+.d-link{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;text-decoration:none;color:#94a3b8;font-size:13.5px;transition:all .15s;}
+.d-link:hover{background:rgba(255,255,255,.05);color:#fff;}
+.d-link.active{background:rgba(255,131,36,.08);color:var(--color-p6-lightorange,#F8A679);border:1px solid rgba(255,131,36,.15);}
+.d-link i{font-size:15px;width:18px;text-align:center;}
+.d-div{height:1px;background:rgba(255,255,255,.05);margin:8px 0;}
+@media(max-width:768px){.np-links,.np-right .np-signin,.np-mega-trigger{display:none!important;}.np-hamburger{display:flex!important;}}
+@media(max-width:520px){.np-logo-text{display:none;}}
+</style>`;
 
-/* ── Responsive ─────────────────────────────────────────── */
-@media(max-width:1024px){.nav-logo-text{display:none;}}
-@media(max-width:820px){
-  .nav-links,.nav-tools-wrap{display:none!important;}
-  .nav-hamburger{display:flex!important;}
-  .nav-right .nav-signin{display:none!important;}
-}
-</style>
+  const TOOLS_DATA = [
+    { href:'roadmap.html',    label:'Roadmap Generator',  desc:'12-week execution plan',      icon:'ph-fill ph-map-trifold',  bg:'rgba(0,145,185,.12)',   color:'var(--color-p4-deepteal)' },
+    { href:'prd.html',        label:'PRD Generator',      desc:'Auto-build requirements docs', icon:'ph-fill ph-file-text',    bg:'rgba(149,209,220,.1)',  color:'var(--color-p2-lightblue)' },
+    { href:'github.html',     label:'GitHub Analyzer',   desc:'Grade repo portfolio-readiness',icon:'ph-fill ph-github-logo',  bg:'rgba(0,156,154,.1)',   color:'var(--color-p1-teal)' },
+    { href:'hackathon.html',  label:'Hackathon Mode',    desc:'24-hour battle plan + win %',   icon:'ph-fill ph-timer',        bg:'rgba(255,105,105,.1)', color:'var(--color-p3-coralred)' },
+    { href:'marketplace.html',label:'Idea Marketplace',  desc:'Browse community projects',     icon:'ph-fill ph-storefront',   bg:'rgba(255,208,89,.1)',  color:'var(--color-p3-mustard)' },
+    { href:'collaborate.html',label:'Team Collaborate',  desc:'Share & invite teammates',      icon:'ph-fill ph-users-three',  bg:'rgba(139,145,221,.1)', color:'var(--color-p6-periwinkle)' },
+  ];
 
-<div class="nav-inner">
-  <!-- Logo -->
-  <a href="index.html" class="nav-logo">
-    <div class="nav-logo-icon"><i class="ph-fill ph-rocket-launch"></i></div>
-    <span class="nav-logo-text">Project Validator AI</span>
+  const toolCards = (items) => items.map(t => `
+    <a href="${t.href}" class="mega-card">
+      <div class="mega-card-icon" style="background:${t.bg};"><i class="${t.icon}" style="color:${t.color};"></i></div>
+      <div class="mega-card-text"><p>${t.label}</p><span>${t.desc}</span></div>
+    </a>`).join('');
+
+  const NAV_LINKS = [
+    { href:'index.html',    label:'Home' },
+    { href:'analyze.html',  label:'Analyze' },
+    { href:'saved.html',    label:'Saved' },
+    { href:'compare.html',  label:'Compare' },
+  ];
+
+  const DRAWER_PAGES = [
+    ...NAV_LINKS.map(l=>({...l, icon:'ph ph-circle'})),
+    null,
+    ...TOOLS_DATA.map(t=>({href:t.href,label:t.label,icon:t.icon,color:t.color})),
+  ];
+
+  const html = `
+${CSS}
+<div class="nav-pill">
+  <a href="index.html" class="np-logo">
+    <div class="np-logo-icon"><i class="ph-fill ph-rocket-launch"></i></div>
+    <span class="np-logo-text">Project Validator AI</span>
   </a>
 
-  <!-- Main Links -->
-  <nav class="nav-links">
-    ${mainLinks}
-  </nav>
+  <div class="np-links">
+    ${NAV_LINKS.map(l=>`<a href="${l.href}" class="np-link ${active(l.href)}">${l.label}${active(l.href)?'<span class="np-link-dot"></span>':''}</a>`).join('')}
 
-  <!-- Tools Dropdown -->
-  <div class="nav-tools-wrap" id="navToolsWrap">
-    <button class="nav-tools-btn" id="navToolsBtn">
-      <i class="ph ph-squares-four" style="font-size:15px;"></i>
-      Tools
-      <i class="ph ph-caret-down caret"></i>
+    <!-- Tools mega trigger -->
+    <button class="np-link np-mega-trigger" id="megaTrigger">
+      Tools <i class="ph ph-caret-down caret"></i>
     </button>
-    <div class="nav-dropdown" id="navDropdown">
-      ${toolItems}
+  </div>
+
+  <div class="np-right">
+    <a href="login.html" id="npSignIn" class="np-signin" style="display:none;">Sign in</a>
+    <a href="analyze.html" class="np-cta" id="npCTA">
+      <i class="ph ph-plus" style="font-size:13px;"></i> New Project
+    </a>
+    <div class="np-avatar-wrap" id="npAvatarWrap" style="display:none;">
+      <div class="np-avatar" id="npAvatar">U</div>
+      <div class="np-avatar-menu">
+        <div class="np-am-head"><p id="npAMName">User</p><span id="npAMEmail"></span></div>
+        <a href="saved.html"      class="np-am-link"><i class="ph ph-folder-open"></i> My Projects</a>
+        <a href="collaborate.html"class="np-am-link"><i class="ph ph-users-three"></i> Collaborate</a>
+        <div style="height:1px;background:rgba(255,255,255,.06);margin:6px 0;"></div>
+        <button class="np-am-link" id="npSignOut"><i class="ph ph-sign-out"></i> Sign Out</button>
+      </div>
     </div>
   </div>
 
-  <!-- Right Side -->
-  <div class="nav-right">
-    <div id="navAuthArea"></div>
-    <a href="login.html" id="navSignInBtn" class="nav-signin" style="display:none;">
-      <i class="ph ph-sign-in" style="font-size:15px;"></i> Sign In
-    </a>
-  </div>
-
-  <!-- Hamburger -->
-  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
-    <span class="ham-line"></span>
-    <span class="ham-line"></span>
-    <span class="ham-line"></span>
+  <button class="np-hamburger" id="npHam" aria-label="Menu">
+    <span class="ham"></span><span class="ham"></span><span class="ham"></span>
   </button>
+
+  <!-- Mega Dropdown -->
+  <div class="np-mega" id="megaDrop">
+    <div class="mega-grid">
+      <div class="mega-col">
+        <p class="mega-section-title">Core Tools</p>
+        ${toolCards(TOOLS_DATA.slice(0,3))}
+      </div>
+      <div class="mega-col">
+        <p class="mega-section-title">Platform</p>
+        ${toolCards(TOOLS_DATA.slice(3))}
+      </div>
+    </div>
+    <div class="mega-footer">
+      <div class="mega-footer-left">
+        <div class="mega-footer-icon"><i class="ph ph-book-open-text"></i></div>
+        <div><p>Full Platform Guide</p><span>Everything in one place</span></div>
+      </div>
+      <a href="analyze.html" class="mega-footer-btn">Start Analyzing <i class="ph ph-arrow-right"></i></a>
+    </div>
+  </div>
 </div>
 
 <!-- Mobile Drawer -->
-<div class="nav-drawer" id="navDrawer">
-  <div class="nav-drawer-backdrop" id="navDrawerBackdrop"></div>
+<div class="nav-drawer" id="npDrawer">
+  <div class="nav-drawer-bg" id="npDrawerBg"></div>
   <div class="nav-drawer-panel">
-    <div class="nav-drawer-head">
-      <div class="nav-drawer-logo">
-        <i class="ph-fill ph-rocket-launch"></i>
-        <span>Project Validator AI</span>
+    <div class="drawer-top">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="np-logo-icon" style="width:28px;height:28px;"><i class="ph-fill ph-rocket-launch" style="font-size:14px;color:#fff;"></i></div>
+        <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;color:#fff;">Project Validator AI</span>
       </div>
-      <button class="nav-drawer-close" id="navDrawerClose"><i class="ph ph-x"></i></button>
+      <button class="drawer-close" id="npDrawerClose"><i class="ph ph-x"></i></button>
     </div>
-
-    <span class="drawer-section">Main</span>
-    ${PAGES.map(p=>`<a href="${p.href}" class="drawer-link ${isActive(p.href)?'active':''}"><i class="${p.icon}"></i>${p.label}</a>`).join('')}
-
-    <div class="drawer-divider"></div>
-    <span class="drawer-section">Tools</span>
-    ${TOOLS.filter(Boolean).map(t=>`<a href="${t.href}" class="drawer-link ${isActive(t.href)?'active':''}"><i class="${t.icon}" style="color:${t.color};"></i>${t.label}</a>`).join('')}
-
-    <div class="drawer-cta" id="drawerAuth"></div>
+    <span class="drawer-lbl">Navigation</span>
+    ${NAV_LINKS.map(l=>`<a href="${l.href}" class="d-link ${active(l.href)}">${l.label}</a>`).join('')}
+    <div class="d-div"></div>
+    <span class="drawer-lbl">Tools</span>
+    ${TOOLS_DATA.map(t=>`<a href="${t.href}" class="d-link ${active(t.href)}"><i class="${t.icon}" style="color:${t.color};"></i>${t.label}</a>`).join('')}
+    <div style="margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);" id="npDrawerAuth"></div>
   </div>
 </div>`;
-  }
 
   function init() {
-    // Remove old nav if present
     document.querySelector('nav.glass')?.remove();
+    const wrap = document.createElement('div');
+    wrap.id = 'site-nav';
+    Object.assign(wrap.style, { position:'sticky', top:'16px', zIndex:'999', display:'flex', justifyContent:'center', padding:'0 16px' });
+    wrap.innerHTML = html;
+    document.body.insertAdjacentElement('afterbegin', wrap);
 
-    // Create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.id = 'site-nav';
-    wrapper.innerHTML = buildNav();
-    document.body.insertAdjacentElement('afterbegin', wrapper);
+    // Mega dropdown
+    const trigger = document.getElementById('megaTrigger');
+    const drop    = document.getElementById('megaDrop');
+    trigger?.addEventListener('click', e => { e.stopPropagation(); trigger.classList.toggle('dd-open'); drop.classList.toggle('mega-open'); });
+    document.addEventListener('click', () => { trigger?.classList.remove('dd-open'); drop?.classList.remove('mega-open'); });
+    drop?.addEventListener('click', e => e.stopPropagation());
 
-    // Tools dropdown toggle
-    const toolsWrap = document.getElementById('navToolsWrap');
-    const toolsBtn  = document.getElementById('navToolsBtn');
-    if (toolsBtn) {
-      toolsBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        toolsWrap.classList.toggle('nav-tools-open');
-      });
-      document.addEventListener('click', () => toolsWrap.classList.remove('nav-tools-open'));
-    }
+    // Mobile
+    const ham    = document.getElementById('npHam');
+    const drawer = document.getElementById('npDrawer');
+    const bg     = document.getElementById('npDrawerBg');
+    const dclose = document.getElementById('npDrawerClose');
+    const open  = () => { drawer.classList.add('open');    ham.classList.add('open');    document.body.style.overflow='hidden'; };
+    const close = () => { drawer.classList.remove('open'); ham.classList.remove('open'); document.body.style.overflow=''; };
+    ham?.addEventListener('click', () => drawer.classList.contains('open') ? close() : open());
+    bg?.addEventListener('click', close);
+    dclose?.addEventListener('click', close);
 
-    // Mobile drawer
-    const hamburger = document.getElementById('navHamburger');
-    const drawer    = document.getElementById('navDrawer');
-    const backdrop  = document.getElementById('navDrawerBackdrop');
-    const closeBtn  = document.getElementById('navDrawerClose');
-    function openDrawer()  { drawer.classList.add('open');    hamburger.classList.add('open');    document.body.style.overflow='hidden'; }
-    function closeDrawer() { drawer.classList.remove('open'); hamburger.classList.remove('open'); document.body.style.overflow='';       }
-    hamburger?.addEventListener('click', () => drawer.classList.contains('open') ? closeDrawer() : openDrawer());
-    backdrop?.addEventListener('click', closeDrawer);
-    closeBtn?.addEventListener('click', closeDrawer);
-
-    // Auth state
-    loadAuthState();
+    // Auth
+    loadAuth();
   }
 
-  async function loadAuthState() {
+  async function loadAuth() {
     try {
-      if (!window._supabase) return showSignIn();
-      const { data: { user } } = await window._supabase.auth.getUser();
-      if (user) showAvatar(user);
-      else showSignIn();
-    } catch { showSignIn(); }
+      if (!window._supabase) return showSignedOut();
+      const { data:{ user } } = await window._supabase.auth.getUser();
+      user ? showSignedIn(user) : showSignedOut();
+    } catch { showSignedOut(); }
   }
 
-  function showSignIn() {
-    const btn = document.getElementById('navSignInBtn');
-    if (btn) btn.style.display = 'flex';
-    const da = document.getElementById('drawerAuth');
-    if (da) da.innerHTML = `<a href="login.html" class="nav-signin" style="display:flex;width:100%;justify-content:center;"><i class="ph ph-sign-in" style="font-size:15px;"></i> Sign In</a>`;
+  function showSignedOut() {
+    document.getElementById('npSignIn').style.display = 'inline-flex';
+    const da = document.getElementById('npDrawerAuth');
+    if (da) da.innerHTML = `<a href="login.html" class="np-cta" style="width:100%;justify-content:center;display:flex;"><i class="ph ph-sign-in" style="font-size:13px;"></i> Sign In</a>`;
   }
 
-  function showAvatar(user) {
-    const initials = (user.user_metadata?.display_name || user.email || '?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    const email = user.email || '';
-    const name  = user.user_metadata?.display_name || email.split('@')[0] || 'User';
+  function showSignedIn(user) {
+    document.getElementById('npSignIn').style.display = 'none';
+    document.getElementById('npCTA').style.display = 'none';
+    const wrap = document.getElementById('npAvatarWrap');
+    wrap.style.display = 'block';
+    const initials = (user.user_metadata?.display_name || user.email || 'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const name  = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
+    document.getElementById('npAvatar').textContent = initials;
+    document.getElementById('npAMName').textContent  = name;
+    document.getElementById('npAMEmail').textContent = user.email || '';
 
-    const area = document.getElementById('navAuthArea');
-    if (area) {
-      area.innerHTML = `
-        <div class="nav-avatar-wrap" id="avatarWrap">
-          <div class="nav-avatar" id="navAvatar" title="${email}">${initials}</div>
-          <div class="nav-avatar-menu">
-            <div class="nav-avatar-name">
-              <p>${name}</p>
-              <span>${email}</span>
-            </div>
-            <a href="saved.html" class="nav-avatar-link"><i class="ph ph-folder-open"></i> My Projects</a>
-            <a href="collaborate.html" class="nav-avatar-link"><i class="ph ph-users-three"></i> Collaborate</a>
-            <div class="nav-drop-divider"></div>
-            <button class="nav-avatar-link nav-signout" id="navSignOut"><i class="ph ph-sign-out"></i> Sign Out</button>
-          </div>
-        </div>`;
-      document.getElementById('navAvatar')?.addEventListener('click', e => {
-        e.stopPropagation();
-        document.getElementById('avatarWrap')?.classList.toggle('open');
-      });
-      document.addEventListener('click', () => document.getElementById('avatarWrap')?.classList.remove('open'));
-      document.getElementById('navSignOut')?.addEventListener('click', async () => {
-        await window._supabase?.auth.signOut();
-        window.location.href = 'index.html';
-      });
-    }
+    document.getElementById('npAvatar')?.addEventListener('click', e => { e.stopPropagation(); wrap.classList.toggle('open'); });
+    document.addEventListener('click', () => wrap.classList.remove('open'));
+    document.getElementById('npSignOut')?.addEventListener('click', async () => { await window._supabase?.auth.signOut(); window.location.href='index.html'; });
 
-    // Drawer auth
-    const da = document.getElementById('drawerAuth');
-    if (da) da.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,131,36,.06);border:1px solid rgba(255,131,36,.15);">
-        <div class="nav-avatar" style="width:32px;height:32px;font-size:12px;">${initials}</div>
-        <div><p style="font-size:13px;font-weight:600;color:#fff;">${name}</p><p style="font-size:11px;color:#475569;">${email}</p></div>
-      </div>
-      <button style="margin-top:10px;width:100%;padding:10px;border-radius:10px;background:rgba(250,47,57,.08);border:1px solid rgba(250,47,57,.2);color:#f87171;font-size:13px;cursor:pointer;font-family:inherit;" onclick="window._supabase?.auth.signOut().then(()=>window.location.href='index.html')">
-        <i class="ph ph-sign-out"></i> Sign Out
-      </button>`;
+    const da = document.getElementById('npDrawerAuth');
+    if (da) da.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,131,36,.07);border:1px solid rgba(255,131,36,.15);margin-bottom:10px;"><div class="np-avatar" style="width:30px;height:30px;font-size:11px;">${initials}</div><div><p style="font-size:13px;font-weight:600;color:#fff;">${name}</p><p style="font-size:11px;color:#475569;">${user.email||''}</p></div></div><button onclick="window._supabase?.auth.signOut().then(()=>window.location.href='index.html')" style="width:100%;padding:9px;border-radius:10px;background:rgba(250,47,57,.08);border:1px solid rgba(250,47,57,.2);color:#f87171;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ph ph-sign-out"></i> Sign Out</button>`;
   }
 
-  // Run after DOM + Supabase are ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
