@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Idea Marketplace - Project Validator AI</title>
+  <meta name="description" content="Discover, upvote, and publish project ideas. Find your next build from the community.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <nav class="glass sticky top-0 z-50 w-full px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="ph ph-rocket-launch text-3xl text-primary-500"></i>
+        <a href="index.html" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Project Validator AI</a>
+      </div>
+      <div class="hidden md:flex items-center gap-6">
+        <a href="index.html"      class="nav-link">Home</a>
+        <a href="analyze.html"    class="nav-link">Analyze</a>
+        <a href="saved.html"      class="nav-link">Saved</a>
+        <a href="marketplace.html" class="nav-link active">Marketplace</a>
+        <a href="compare.html"    class="nav-link">Compare</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="navUserArea" class="hidden"></div>
+        <a id="navSignInBtn" href="login.html" class="btn-secondary py-2 px-4 text-sm hidden md:flex">
+          <i class="ph ph-sign-in"></i> Sign In
+        </a>
+        <button onclick="openPublishModal()" class="btn-primary py-2 px-4 text-sm hidden md:flex">
+          <i class="ph ph-plus-circle text-lg"></i> Publish Idea
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow flex flex-col items-center py-10 px-4 relative overflow-hidden">
+    <div class="absolute top-0 left-1/3 w-[600px] h-[400px] bg-primary-600/10 rounded-full blur-[150px] -z-10 pointer-events-none"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-accent-500/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+
+    <div class="max-w-6xl w-full relative z-10">
+
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 gap-4">
+        <div>
+          <h1 class="text-4xl font-bold text-white flex items-center gap-3">
+            <i class="ph-fill ph-storefront text-primary-500"></i> Idea Marketplace
+          </h1>
+          <p class="text-slate-400 mt-2">Discover scored project ideas from the community. Upvote, fork, and build.</p>
+        </div>
+        <button onclick="openPublishModal()" class="btn-primary py-2 px-5">
+          <i class="ph ph-plus text-lg"></i> Publish Your Idea
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="glass-card p-4 mb-8 flex flex-col md:flex-row gap-4 items-center">
+        <div class="relative w-full md:max-w-sm">
+          <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="searchInput" placeholder="Search ideas..." class="input-field pl-10 w-full" oninput="filterPosts()">
+        </div>
+        <div class="flex gap-3 flex-wrap w-full md:w-auto">
+          <select id="filterDomain" class="input-field w-full md:w-36" onchange="filterPosts()">
+            <option value="All">All Domains</option>
+            <option value="AI">AI / ML</option>
+            <option value="SaaS">SaaS</option>
+            <option value="Web">Web</option>
+            <option value="Mobile">Mobile</option>
+            <option value="Blockchain">Blockchain</option>
+            <option value="IoT">IoT</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+          </select>
+          <select id="filterSort" class="input-field w-full md:w-36" onchange="filterPosts()">
+            <option value="votes">Most Voted</option>
+            <option value="score">Highest Score</option>
+            <option value="date">Newest</option>
+          </select>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="setFilter('All')"  id="tab-All"  class="tab-btn active">All</button>
+          <button onclick="setFilter('Tier 5')" id="tab-Tier 5" class="tab-btn">Tier 5</button>
+          <button onclick="setFilter('Tier 4')" id="tab-Tier 4" class="tab-btn">Tier 4</button>
+          <button onclick="setFilter('Tier 3')" id="tab-Tier 3" class="tab-btn">Tier 3</button>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="glass-card p-4 text-center">
+          <p class="text-2xl font-bold text-white" id="statIdeas">—</p>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mt-1">Ideas Published</p>
+        </div>
+        <div class="glass-card p-4 text-center">
+          <p class="text-2xl font-bold text-primary-400" id="statAvg">—</p>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mt-1">Avg Score</p>
+        </div>
+        <div class="glass-card p-4 text-center">
+          <p class="text-2xl font-bold text-emerald-400" id="statVotes">—</p>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Upvotes</p>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div id="marketGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <div id="emptyState" class="hidden text-center py-20">
+        <i class="ph ph-ghost text-6xl text-slate-700 mb-4 block"></i>
+        <p class="text-slate-400">No ideas match your search.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Publish Modal -->
+  <div id="publishModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-dark-950/80 backdrop-blur-sm">
+    <div class="glass-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border border-white/10">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-white">Publish Your Idea</h2>
+        <button onclick="closePublishModal()" class="text-slate-500 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <!-- Option A: pick from saved -->
+      <div id="pickSaved" class="mb-5">
+        <label class="label-text">Pick from your Saved Projects <span class="text-slate-600">(optional)</span></label>
+        <select id="savedProjectPicker" class="input-field w-full mt-1" onchange="autofillFromSaved()">
+          <option value="">— or fill in manually below —</option>
+        </select>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="label-text" for="pubName">Project Name *</label>
+          <input type="text" id="pubName" class="input-field w-full" placeholder="AI Mental Health Companion">
+        </div>
+        <div>
+          <label class="label-text" for="pubIdea">One-Line Pitch *</label>
+          <input type="text" id="pubIdea" class="input-field w-full" placeholder="An LLM-powered app that...">
+        </div>
+        <div>
+          <label class="label-text" for="pubProblem">Problem Solved *</label>
+          <textarea id="pubProblem" rows="2" class="input-field w-full resize-none" placeholder="Describe the problem..."></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label-text" for="pubDomain">Domain</label>
+            <select id="pubDomain" class="input-field w-full">
+              <option>AI</option><option>SaaS</option><option>Web</option>
+              <option>Mobile</option><option>Blockchain</option><option>IoT</option>
+              <option>Cybersecurity</option><option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="label-text" for="pubScore">Your Score</label>
+            <input type="number" id="pubScore" class="input-field w-full" placeholder="75" min="0" max="100">
+          </div>
+        </div>
+        <div>
+          <label class="label-text" for="pubGithub">GitHub URL <span class="text-slate-600">(optional)</span></label>
+          <input type="url" id="pubGithub" class="input-field w-full" placeholder="https://github.com/...">
+        </div>
+        <div>
+          <label class="label-text" for="pubDemo">Live Demo URL <span class="text-slate-600">(optional)</span></label>
+          <input type="url" id="pubDemo" class="input-field w-full" placeholder="https://...">
+        </div>
+      </div>
+      <button onclick="publishIdea()" class="btn-primary w-full py-3 mt-6">
+        <i class="ph ph-rocket-launch text-lg"></i> Publish to Marketplace
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/auth.js"></script>
+  <script src="./assets/js/storage.js"></script>
+  <script src="./assets/js/main.js"></script>
+  <script src="./assets/js/mentor.js"></script>
+  <script>
+    let allPosts = [];
+    let activeFilter = 'All';
+    const STORAGE_KEY = 'marketplace_posts';
+
+    // ── Demo Data (seeds if Supabase table not yet set up) ─────────────────
+    const DEMO_POSTS = [
+      { id:'demo1', name:'Neural Study Buddy', oneLineIdea:'AI tutor that adapts to your learning style using GPT-4', problemStatement:'Students waste hours on ineffective study methods with no personalized feedback', domain:'AI', totalScore:88, tier:'Tier 4', verdict:'BUILD IMMEDIATELY', votes:142, author:'Rishvin R.', createdAt:new Date(Date.now()-86400000*2).toISOString(), githubUrl:'', demoUrl:'' },
+      { id:'demo2', name:'SaaS Compliance Tracker', oneLineIdea:'Auto-monitor your SaaS stack for GDPR and SOC2 violations', problemStatement:'SMEs spend $50k/year on compliance consultants for routine checks', domain:'SaaS', totalScore:82, tier:'Tier 4', verdict:'BUILD IMMEDIATELY', votes:89, author:'Alex T.', createdAt:new Date(Date.now()-86400000*5).toISOString(), githubUrl:'', demoUrl:'' },
+      { id:'demo3', name:'Open Source Bounty Board', oneLineIdea:'GitHub Issues + crypto micropayments for open source contributions', problemStatement:'Open source maintainers burn out with no way to reward contributors', domain:'Blockchain', totalScore:76, tier:'Tier 3', verdict:'Strong Project', votes:67, author:'Priya S.', createdAt:new Date(Date.now()-86400000*7).toISOString(), githubUrl:'', demoUrl:'' },
+      { id:'demo4', name:'CLI Productivity Analyzer', oneLineIdea:'Terminal tool that audits your dev environment and suggests speed improvements', problemStatement:'Developers lose 30 min/day to slow builds, inefficient aliases, and poor tool choices', domain:'Web', totalScore:71, tier:'Tier 3', verdict:'Strong Project', votes:54, author:'Jordan K.', createdAt:new Date(Date.now()-86400000*3).toISOString(), githubUrl:'', demoUrl:'' },
+      { id:'demo5', name:'IoT Air Quality Monitor', oneLineIdea:'Low-cost Raspberry Pi sensor network with real-time city air quality map', problemStatement:'City residents have no granular air quality data for their specific neighborhood', domain:'IoT', totalScore:68, tier:'Tier 3', verdict:'Strong Project', votes:41, author:'Maria C.', createdAt:new Date(Date.now()-86400000*10).toISOString(), githubUrl:'', demoUrl:'' },
+      { id:'demo6', name:'Zero-Day Threat Intel Hub', oneLineIdea:'Aggregates CVE feeds + AI triage to prioritize security patches for your stack', problemStatement:'Security teams are overwhelmed by hundreds of CVEs daily with no context', domain:'Cybersecurity', totalScore:91, tier:'Tier 5', verdict:'BUILD IMMEDIATELY', votes:203, author:'Sam W.', createdAt:new Date(Date.now()-86400000*1).toISOString(), githubUrl:'', demoUrl:'' },
+    ];
+
+    // ── Load Posts ─────────────────────────────────────────────────────────
+    async function loadPosts() {
+      // Try Supabase marketplace table first, fall back to demo data
+      try {
+        const { data, error } = await window._supabase
+          .from('marketplace')
+          .select('*')
+          .order('votes', { ascending: false });
+
+        if (error || !data?.length) throw new Error('use demo');
+
+        // Merge demo posts with live posts
+        const liveIds = new Set(data.map(p => p.id));
+        allPosts = [...data, ...DEMO_POSTS.filter(d => !liveIds.has(d.id))];
+      } catch {
+        // Load from localStorage + demo
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const savedIds = new Set(saved.map(p => p.id));
+        allPosts = [...saved, ...DEMO_POSTS.filter(d => !savedIds.has(d.id))];
+      }
+
+      updateStats();
+      filterPosts();
+    }
+
+    // ── Filter ─────────────────────────────────────────────────────────────
+    function setFilter(tier) {
+      activeFilter = tier;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${tier}`)?.classList.add('active');
+      filterPosts();
+    }
+
+    function filterPosts() {
+      const q      = document.getElementById('searchInput').value.toLowerCase();
+      const domain = document.getElementById('filterDomain').value;
+      const sort   = document.getElementById('filterSort').value;
+
+      let filtered = allPosts.filter(p => {
+        const matchQ      = (p.name||'').toLowerCase().includes(q) || (p.oneLineIdea||'').toLowerCase().includes(q);
+        const matchDomain = domain === 'All' || p.domain === domain;
+        const matchTier   = activeFilter === 'All' || p.tier === activeFilter;
+        return matchQ && matchDomain && matchTier;
+      });
+
+      filtered.sort((a, b) => {
+        if (sort === 'votes') return (b.votes||0) - (a.votes||0);
+        if (sort === 'score') return (b.totalScore||0) - (a.totalScore||0);
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      renderGrid(filtered);
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────────
+    function tierColor(tier) {
+      if (tier === 'Tier 5') return 'emerald';
+      if (tier === 'Tier 4') return 'primary';
+      if (tier === 'Tier 3') return 'accent';
+      return 'slate';
+    }
+
+    function renderGrid(posts) {
+      const grid  = document.getElementById('marketGrid');
+      const empty = document.getElementById('emptyState');
+      grid.innerHTML = '';
+      if (!posts.length) { empty.classList.remove('hidden'); return; }
+      empty.classList.add('hidden');
+      posts.forEach(p => {
+        const c = tierColor(p.tier);
+        const card = document.createElement('div');
+        card.className = `glass-card p-6 flex flex-col border-${c}-500/20 hover:border-${c}-500/40 transition-all hover:-translate-y-0.5 cursor-default`;
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-xs px-2 py-0.5 rounded-full bg-${c}-500/10 text-${c}-400 border border-${c}-500/20 font-medium">${p.domain}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-white">${p.totalScore||'?'}/100</span>
+              <button onclick="vote('${p.id}')" class="flex items-center gap-1 text-xs text-slate-500 hover:text-primary-400 transition-colors group">
+                <i class="ph-fill ph-arrow-fat-up group-hover:scale-110 transition-transform"></i>
+                <span id="votes-${p.id}">${p.votes||0}</span>
+              </button>
+            </div>
+          </div>
+          <h3 class="font-bold text-white mb-1">${p.name}</h3>
+          <span class="text-xs text-slate-500 mb-2">${p.tier||'Unrated'} · ${p.verdict||''}</span>
+          <p class="text-sm text-slate-400 flex-grow mb-4 line-clamp-2">${p.oneLineIdea||p.problemStatement||'—'}</p>
+          <div class="flex items-center justify-between mt-auto pt-3 border-t border-white/5">
+            <span class="text-xs text-slate-600">${p.author||'Anonymous'} · ${new Date(p.createdAt).toLocaleDateString()}</span>
+            <div class="flex items-center gap-2">
+              ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" class="text-slate-500 hover:text-white transition-colors" title="GitHub"><i class="ph ph-github-logo"></i></a>` : ''}
+              ${p.demoUrl   ? `<a href="${p.demoUrl}"   target="_blank" class="text-slate-500 hover:text-primary-400 transition-colors text-xs flex items-center gap-0.5">Demo <i class="ph ph-arrow-square-out text-xs"></i></a>` : ''}
+              <button onclick="forkIdea('${p.id}')" class="text-xs text-slate-500 hover:text-accent-400 transition-colors flex items-center gap-1" title="Fork this idea">
+                <i class="ph ph-git-fork"></i> Fork
+              </button>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    // ── Stats ───────────────────────────────────────────────────────────────
+    function updateStats() {
+      document.getElementById('statIdeas').textContent = allPosts.length;
+      const avg = allPosts.length ? Math.round(allPosts.reduce((s,p)=>s+(p.totalScore||0),0)/allPosts.length) : 0;
+      document.getElementById('statAvg').textContent   = avg + '/100';
+      const votes = allPosts.reduce((s,p)=>s+(p.votes||0),0);
+      document.getElementById('statVotes').textContent = votes.toLocaleString();
+    }
+
+    // ── Vote ───────────────────────────────────────────────────────────────
+    function vote(id) {
+      const votedKey = `voted_${id}`;
+      if (localStorage.getItem(votedKey)) { window.showToast('Already voted!', 'error'); return; }
+      const post = allPosts.find(p => p.id === id);
+      if (!post) return;
+      post.votes = (post.votes || 0) + 1;
+      localStorage.setItem(votedKey, '1');
+      const el = document.getElementById(`votes-${id}`);
+      if (el) el.textContent = post.votes;
+      // Try Supabase
+      window._supabase?.from('marketplace').update({ votes: post.votes }).eq('id', id).then(() => {}).catch(() => {});
+      window.showToast('Upvoted! 🚀', 'success');
+    }
+
+    // ── Fork ───────────────────────────────────────────────────────────────
+    function forkIdea(id) {
+      const post = allPosts.find(p => p.id === id);
+      if (!post) return;
+      const params = new URLSearchParams({
+        name: post.name + ' (Fork)',
+        idea: post.oneLineIdea || '',
+        problem: post.problemStatement || '',
+        domain: post.domain || '',
+      });
+      window.location.href = `analyze.html?${params}`;
+    }
+
+    // ── Publish Modal ──────────────────────────────────────────────────────
+    function openPublishModal() { document.getElementById('publishModal').classList.replace('hidden', 'flex'); }
+    function closePublishModal() { document.getElementById('publishModal').classList.replace('flex', 'hidden'); }
+
+    async function autofillFromSaved() {
+      const id = document.getElementById('savedProjectPicker').value;
+      if (!id) return;
+      const projects = await window.StorageAPI.getProjects();
+      const p = projects.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('pubName').value    = p.name || '';
+      document.getElementById('pubIdea').value    = p.oneLineIdea || '';
+      document.getElementById('pubProblem').value = p.problemStatement || '';
+      document.getElementById('pubDomain').value  = p.domain || 'AI';
+      document.getElementById('pubScore').value   = p.totalScore || '';
+    }
+
+    async function loadSavedForModal() {
+      try {
+        const projects = await window.StorageAPI.getProjects();
+        const sel = document.getElementById('savedProjectPicker');
+        if (projects.length) {
+          sel.innerHTML = '<option value="">— pick a saved project to autofill —</option>' +
+            projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        }
+      } catch {}
+    }
+
+    async function publishIdea() {
+      const name    = document.getElementById('pubName').value.trim();
+      const idea    = document.getElementById('pubIdea').value.trim();
+      const problem = document.getElementById('pubProblem').value.trim();
+      if (!name || !idea || !problem) { window.showToast('Fill in all required fields', 'error'); return; }
+
+      const user = await window.AuthAPI.getUser();
+      const post = {
+        id:               crypto.randomUUID(),
+        name,
+        oneLineIdea:      idea,
+        problemStatement: problem,
+        domain:           document.getElementById('pubDomain').value,
+        totalScore:       parseInt(document.getElementById('pubScore').value) || 0,
+        tier:             getTier(parseInt(document.getElementById('pubScore').value) || 0),
+        verdict:          '',
+        votes:            0,
+        author:           user ? (user.user_metadata?.display_name || user.email?.split('@')[0] || 'Anonymous') : 'Anonymous',
+        user_id:          user?.id || null,
+        githubUrl:        document.getElementById('pubGithub').value.trim(),
+        demoUrl:          document.getElementById('pubDemo').value.trim(),
+        createdAt:        new Date().toISOString(),
+      };
+
+      // Try Supabase first, fall back to localStorage
+      try {
+        const { error } = await window._supabase.from('marketplace').insert(post);
+        if (error) throw error;
+      } catch {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        saved.unshift(post);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved.slice(0, 50)));
+      }
+
+      allPosts.unshift(post);
+      updateStats();
+      filterPosts();
+      closePublishModal();
+      window.showToast('Idea published to Marketplace! 🚀', 'success');
+    }
+
+    function getTier(score) {
+      if (score >= 90) return 'Tier 5';
+      if (score >= 80) return 'Tier 4';
+      if (score >= 65) return 'Tier 3';
+      if (score >= 50) return 'Tier 2';
+      return 'Tier 1';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.AuthAPI.updateNavUI();
+      await loadPosts();
+      await loadSavedForModal();
+    });
+  </script>
+  <style>
+    .tab-btn { @apply text-xs px-3 py-1.5 rounded-xl text-slate-500 border border-white/5 hover:text-white hover:border-white/20 transition-all; }
+    .tab-btn.active { @apply text-primary-400 border-primary-500/40 bg-primary-500/10; }
+  </style>
+</body>
+</html>
