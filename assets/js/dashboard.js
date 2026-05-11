@@ -1,6 +1,6 @@
 // dashboard.js - Render project results
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Get ID from URL
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('id');
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const project = window.StorageAPI.getProjectById(projectId);
+  const project = await window.StorageAPI.getProjectById(projectId);
   
   if (!project) {
     alert('Project not found!');
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Drag & Drop events for columns
     [kanbanTodo, kanbanProgress, kanbanDone].forEach(col => {
       col.addEventListener('dragover', e => e.preventDefault());
-      col.addEventListener('drop', e => {
+      col.addEventListener('drop', async (e) => {
         e.preventDefault();
         const cardId = e.dataTransfer.getData('text/plain');
         const card = document.getElementById(cardId);
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // Save state
           if (!project.kanban) project.kanban = {};
           project.kanban[cardId.replace('card-', '')] = col.dataset.status;
-          window.StorageAPI.saveProject(project);
+          await window.StorageAPI.saveProject(project);
         }
       });
     });

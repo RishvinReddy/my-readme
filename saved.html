@@ -87,13 +87,19 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
   <script src="./assets/js/storage.js"></script>
   <script src="./assets/js/main.js"></script>
   <script>
     let allProjects = [];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      allProjects = window.StorageAPI.getProjects().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Show loading state
+      const grid = document.getElementById('projectsGrid');
+      grid.innerHTML = '<p class="col-span-3 text-center text-slate-500 py-16">Loading projects from cloud...</p>';
+
+      allProjects = await window.StorageAPI.getProjects();
       renderProjects();
 
       // Search & Filter listeners
@@ -174,23 +180,23 @@
       downloadAnchorNode.remove();
     }
 
-    function handleImport(e) {
+    async function handleImport(e) {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = async function(event) {
         try {
           const importedProjects = JSON.parse(event.target.result);
           if (!Array.isArray(importedProjects)) throw new Error("Invalid format");
           
           let count = 0;
-          importedProjects.forEach(p => {
+          for (const p of importedProjects) {
             if (p.id && p.name) {
-              window.StorageAPI.saveProject(p);
+              await window.StorageAPI.saveProject(p);
               count++;
             }
-          });
+          }
           
           window.showToast(`Successfully imported ${count} projects!`, 'success');
           setTimeout(() => window.location.reload(), 1500);
@@ -201,10 +207,10 @@
       reader.readAsText(file);
     }
 
-    window.deleteProject = (id) => {
+    window.deleteProject = async (id) => {
       if(confirm('Are you sure you want to delete this project?')) {
-        window.StorageAPI.deleteProject(id);
-        allProjects = window.StorageAPI.getProjects().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        await window.StorageAPI.deleteProject(id);
+        allProjects = await window.StorageAPI.getProjects();
         renderProjects();
         window.showToast('Project deleted', 'success');
       }
@@ -212,3 +218,4 @@
   </script>
 </body>
 </html>
+

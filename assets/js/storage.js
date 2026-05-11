@@ -1,68 +1,166 @@
-// storage.js - LocalStorage Helper Functions
+// storage.js - Supabase Cloud Storage Helper Functions
+// All methods are async and return Promises.
+// Every project field maps to a dedicated database column.
 
-const STORAGE_KEY = 'project_validator_ideas';
-
-/**
- * Retrieves all saved projects
- * @returns {Array} Array of project objects
- */
-function getProjects() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
-}
+const db = () => window._supabase; // lazy getter so client is always ready
 
 /**
- * Saves a new project or updates an existing one
- * @param {Object} projectData 
- * @returns {string} The ID of the saved project
+ * Converts a raw Supabase row → the project object shape the UI expects.
  */
-function saveProject(projectData) {
-  const projects = getProjects();
-  
-  // Create new project object
-  const newProject = {
-    id: projectData.id || Date.now().toString(),
-    createdAt: projectData.createdAt || new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    ...projectData
+function rowToProject(row) {
+  return {
+    // Identity
+    id:               row.id,
+    createdAt:        row.created_at,
+    updatedAt:        row.updated_at,
+
+    // Basic Info
+    name:             row.name,
+    type:             row.type,
+    oneLineIdea:      row.one_line_idea,
+    problemStatement: row.problem_statement,
+    uniqueAngle:      row.unique_angle,
+
+    // Technical
+    domain:           row.domain,
+    deployment:       row.deployment,
+    aiIntegration:    row.ai_integration,
+
+    // Financials
+    estCosts:         row.est_costs,
+    estRev:           row.est_rev,
+
+    // Scoring
+    totalScore:       row.total_score,
+    verdict:          row.verdict,
+    tier:             row.tier,
+
+    // Complex nested data (stored as JSONB)
+    scores:           row.scores      || {},
+    metrics:          row.metrics     || {},
+    competitors:      row.competitors || [],
+    kanban:           row.kanban      || {},
   };
+}
 
-  // Check if updating
-  const existingIndex = projects.findIndex(p => p.id === newProject.id);
-  if (existingIndex >= 0) {
-    projects[existingIndex] = newProject;
-  } else {
-    projects.push(newProject);
+/**
+ * Converts a project object → the column payload Supabase expects.
+ */
+function projectToRow(projectData, id, now) {
+  return {
+    id,
+    created_at:        projectData.createdAt || now,
+    updated_at:        now,
+
+    // Basic Info
+    name:              projectData.name             || '',
+    type:              projectData.type             || '',
+    one_line_idea:     projectData.oneLineIdea      || '',
+    problem_statement: projectData.problemStatement || '',
+    unique_angle:      projectData.uniqueAngle      || '',
+
+    // Technical
+    domain:            projectData.domain           || '',
+    deployment:        projectData.deployment       || '',
+    ai_integration:    projectData.aiIntegration    || '',
+
+    // Financials
+    est_costs:         projectData.estCosts  ?? 0,
+    est_rev:           projectData.estRev    ?? 0,
+
+    // Scoring
+    total_score:       projectData.totalScore ?? 0,
+    verdict:           projectData.verdict    || '',
+    tier:              projectData.tier       || '',
+
+    // Complex nested data (JSONB)
+    scores:            projectData.scores      || {},
+    metrics:           projectData.metrics     || {},
+    competitors:       projectData.competitors || [],
+    kanban:            projectData.kanban      || {},
+  };
+}
+
+// ─── CRUD ───────────────────────────────────────────────────────────────────
+
+/**
+ * Retrieves all saved projects from Supabase, ordered newest first.
+ * @returns {Promise<Array>}
+ */
+async function getProjects() {
+  const { data, error } = await db()
+    .from('projects')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('StorageAPI.getProjects error:', error.message);
+    return [];
   }
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-  return newProject.id;
+  return (data || []).map(rowToProject);
 }
 
 /**
- * Get a specific project by ID
- * @param {string} id 
- * @returns {Object|null}
+ * Saves a new project or upserts an existing one.
+ * @param {Object} projectData
+ * @returns {Promise<string>} The UUID of the saved project
  */
-function getProjectById(id) {
-  const projects = getProjects();
-  return projects.find(p => p.id === id) || null;
+async function saveProject(projectData) {
+  const now = new Date().toISOString();
+  const id  = projectData.id || crypto.randomUUID();
+
+  const { error } = await db()
+    .from('projects')
+    .upsert(projectToRow(projectData, id, now), { onConflict: 'id' });
+
+  if (error) {
+    console.error('StorageAPI.saveProject error:', error.message);
+    throw error;
+  }
+  return id;
 }
 
 /**
- * Delete a project by ID
- * @param {string} id 
+ * Get a specific project by ID.
+ * @param {string} id
+ * @returns {Promise<Object|null>}
  */
-function deleteProject(id) {
-  const projects = getProjects();
-  const filtered = projects.filter(p => p.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+async function getProjectById(id) {
+  const { data, error } = await db()
+    .from('projects')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('StorageAPI.getProjectById error:', error.message);
+    return null;
+  }
+  return data ? rowToProject(data) : null;
 }
 
-// Ensure it is available globally
+/**
+ * Delete a project by ID.
+ * @param {string} id
+ * @returns {Promise<void>}
+ */
+async function deleteProject(id) {
+  const { error } = await db()
+    .from('projects')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('StorageAPI.deleteProject error:', error.message);
+    throw error;
+  }
+}
+
+// Expose globally so all pages can call await window.StorageAPI.*
 window.StorageAPI = {
   getProjects,
   saveProject,
   getProjectById,
-  deleteProject
+  deleteProject,
 };
+

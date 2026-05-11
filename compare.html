@@ -96,13 +96,15 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
   <script src="./assets/js/storage.js"></script>
   <script src="./assets/js/main.js"></script>
   <script>
     let compareChart = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const projects = window.StorageAPI.getProjects();
+    document.addEventListener('DOMContentLoaded', async () => {
+      const projects = await window.StorageAPI.getProjects();
       const selectA = document.getElementById('selectA');
       const selectB = document.getElementById('selectB');
 
@@ -111,7 +113,7 @@
         selectB.add(new Option(p.name, p.id));
       });
 
-      document.getElementById('compareBtn').addEventListener('click', () => {
+      document.getElementById('compareBtn').addEventListener('click', async () => {
         const idA = selectA.value;
         const idB = selectB.value;
 
@@ -120,8 +122,10 @@
           return;
         }
 
-        const pA = window.StorageAPI.getProjectById(idA);
-        const pB = window.StorageAPI.getProjectById(idB);
+        const [pA, pB] = await Promise.all([
+          window.StorageAPI.getProjectById(idA),
+          window.StorageAPI.getProjectById(idB)
+        ]);
 
         renderComparison(pA, pB);
       });
@@ -218,3 +222,4 @@
   </script>
 </body>
 </html>
+

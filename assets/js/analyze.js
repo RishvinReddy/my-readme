@@ -151,8 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle Form Submission
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const submitBtn = document.getElementById('calculateBtn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Saving...';
+      }
 
       // Gather Competitors
       const competitors = [];
@@ -233,11 +239,19 @@ document.addEventListener('DOMContentLoaded', () => {
       projectData.verdict = verdict;
       projectData.tier = tier;
 
-      // Save to local storage
-      const savedId = window.StorageAPI.saveProject(projectData);
-
-      // Redirect to dashboard with ID
-      window.location.href = `dashboard.html?id=${savedId}`;
+      try {
+        // Save to Supabase cloud (async)
+        const savedId = await window.StorageAPI.saveProject(projectData);
+        // Redirect to dashboard with ID
+        window.location.href = `dashboard.html?id=${savedId}`;
+      } catch (err) {
+        console.error('Failed to save project:', err);
+        if (window.showToast) window.showToast('Failed to save project. Check console for details.', 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="ph-bold ph-calculator"></i> Calculate Verdict';
+        }
+      }
     });
   }
 });
