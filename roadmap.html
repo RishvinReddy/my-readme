@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Roadmap Generator - Project Validator AI</title>
+  <meta name="description" content="Generate a week-by-week MVP roadmap for your project.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <nav class="glass sticky top-0 z-50 w-full px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="ph ph-rocket-launch text-3xl text-primary-500"></i>
+        <a href="index.html" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Project Validator AI</a>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="index.html"   class="nav-link">Home</a>
+        <a href="analyze.html" class="nav-link">Analyze</a>
+        <a href="saved.html"   class="nav-link">Saved</a>
+        <a href="compare.html" class="nav-link">Compare</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="navUserArea" class="hidden"></div>
+        <a id="navSignInBtn" href="login.html" class="btn-secondary py-2 px-4 text-sm hidden md:flex">
+          <i class="ph ph-sign-in"></i> Sign In
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow flex flex-col items-center py-12 px-4 relative overflow-hidden">
+    <div class="absolute top-10 right-10 w-96 h-96 bg-primary-600/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+    <div class="absolute bottom-10 left-10 w-80 h-80 bg-accent-500/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+
+    <div class="max-w-5xl w-full relative z-10">
+
+      <div class="mb-8">
+        <a href="saved.html" class="text-primary-500 hover:text-primary-400 text-sm flex items-center gap-1 mb-4">
+          <i class="ph ph-arrow-left"></i> Back to Saved Projects
+        </a>
+        <h1 class="text-4xl font-bold text-white flex items-center gap-3">
+          <i class="ph-fill ph-map-trifold text-primary-500"></i>
+          AI Roadmap Generator
+        </h1>
+        <p class="text-slate-400 mt-2">Generate a week-by-week execution plan for any saved project</p>
+      </div>
+
+      <!-- Selector -->
+      <div class="glass-card p-5 mb-8">
+        <label class="label-text" for="projectSelect">Select Saved Project</label>
+        <div class="flex gap-3 mt-2">
+          <select id="projectSelect" class="input-field flex-1">
+            <option value="">— Loading projects... —</option>
+          </select>
+          <button id="generateBtn" onclick="generateRoadmap()" class="btn-primary px-6 whitespace-nowrap" disabled>
+            <i class="ph ph-sparkle text-lg"></i> Generate
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="loadingState" class="hidden glass-card p-12 text-center">
+        <i class="ph ph-spinner animate-spin text-5xl text-primary-500 mb-4 block"></i>
+        <p class="text-slate-400">Generating your roadmap...</p>
+      </div>
+
+      <!-- Output -->
+      <div id="roadmapOutput" class="hidden space-y-8">
+
+        <!-- Summary Strip -->
+        <div class="glass-card p-5 flex flex-wrap gap-6 border-primary-500/20">
+          <div><p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Project</p><p id="rmName" class="font-bold text-white text-lg"></p></div>
+          <div><p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Type</p><p id="rmType" class="font-medium text-slate-300"></p></div>
+          <div><p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Score</p><p id="rmScore" class="font-bold text-primary-400"></p></div>
+          <div><p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Timeline</p><p id="rmTimeline" class="font-bold text-emerald-400"></p></div>
+          <div class="ml-auto flex gap-3 items-center">
+            <button onclick="exportRoadmap()" class="btn-secondary py-2 px-4 text-sm">
+              <i class="ph ph-download-simple"></i> Export MD
+            </button>
+            <a id="prdLink" href="prd.html" class="btn-secondary py-2 px-4 text-sm">
+              <i class="ph ph-file-text"></i> PRD
+            </a>
+          </div>
+        </div>
+
+        <!-- Milestone Track -->
+        <div class="glass-card p-6">
+          <h2 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <i class="ph-fill ph-flag text-accent-400"></i> Key Milestones
+          </h2>
+          <div id="milestoneTrack" class="relative flex justify-between items-start"></div>
+        </div>
+
+        <!-- Phases -->
+        <div>
+          <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <i class="ph-fill ph-stack text-primary-500"></i> Development Phases
+          </h2>
+          <div id="phaseCards" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        </div>
+
+        <div class="flex justify-center gap-4 pt-4">
+          <a href="prd.html" id="prdBtnBottom" class="btn-secondary py-3 px-8">
+            <i class="ph ph-file-text text-lg"></i> Generate PRD
+          </a>
+          <a href="analyze.html" class="btn-primary py-3 px-8">
+            <i class="ph ph-plus text-lg"></i> New Project
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/auth.js"></script>
+  <script src="./assets/js/scoring.js"></script>
+  <script src="./assets/js/storage.js"></script>
+  <script src="./assets/js/ai-engine.js"></script>
+  <script src="./assets/js/main.js"></script>
+  <script>
+    let currentProject = null;
+    const COLORS = ['primary','accent','emerald','amber','rose'];
+
+    async function loadProjectList() {
+      const sel = document.getElementById('projectSelect');
+      try {
+        const projects = await window.StorageAPI.getProjects();
+        if (!projects.length) { sel.innerHTML = '<option value="">— No saved projects yet —</option>'; return; }
+        sel.innerHTML = '<option value="">— Choose a project —</option>' +
+          projects.map(p => `<option value="${p.id}">${p.name} (${p.totalScore}/100)</option>`).join('');
+        sel.addEventListener('change', () => {
+          document.getElementById('generateBtn').disabled = !sel.value;
+          currentProject = projects.find(p => p.id === sel.value) || null;
+        });
+        const urlId = new URLSearchParams(window.location.search).get('id');
+        if (urlId) {
+          sel.value = urlId;
+          currentProject = projects.find(p => p.id === urlId) || null;
+          if (currentProject) { document.getElementById('generateBtn').disabled = false; generateRoadmap(); }
+        }
+      } catch(e) { sel.innerHTML = `<option value="">Error: ${e.message}</option>`; }
+    }
+
+    function generateRoadmap() {
+      if (!currentProject) return;
+      document.getElementById('loadingState').classList.remove('hidden');
+      document.getElementById('roadmapOutput').classList.add('hidden');
+      setTimeout(() => {
+        const { phases, milestones, totalWeeks } = window.AIEngine.generateRoadmap(currentProject);
+        document.getElementById('rmName').textContent = currentProject.name;
+        document.getElementById('rmType').textContent = currentProject.type || 'Portfolio';
+        document.getElementById('rmScore').textContent = `${currentProject.totalScore || 0}/100`;
+        document.getElementById('rmTimeline').textContent = `${totalWeeks} Weeks`;
+        const prdUrl = `prd.html?id=${currentProject.id}`;
+        document.getElementById('prdLink').href = prdUrl;
+        document.getElementById('prdBtnBottom').href = prdUrl;
+        renderMilestones(milestones);
+        renderPhases(phases);
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('roadmapOutput').classList.remove('hidden');
+      }, 600);
+    }
+
+    function renderMilestones(milestones) {
+      const t = document.getElementById('milestoneTrack');
+      t.innerHTML = `
+        <div class="absolute top-3 left-0 right-0 h-px bg-gradient-to-r from-primary-500 via-accent-500 to-emerald-500 -z-10"></div>
+        ${milestones.map((m, i) => {
+          const c = i===0?'primary':i===milestones.length-1?'emerald':'accent';
+          return `<div class="flex flex-col items-center gap-2 flex-1">
+            <div class="w-6 h-6 rounded-full border-2 border-${c}-500 bg-dark-900 flex items-center justify-center">
+              <div class="w-2 h-2 rounded-full bg-${c}-500"></div>
+            </div>
+            <p class="text-xs font-bold text-white text-center">${m.label}</p>
+            <p class="text-xs text-slate-500 text-center">${m.week}</p>
+            <p class="text-xs text-slate-400 text-center hidden md:block max-w-[90px]">${m.desc}</p>
+          </div>`;
+        }).join('')}`;
+    }
+
+    function renderPhases(phases) {
+      document.getElementById('phaseCards').innerHTML = phases.map((ph, i) => {
+        const c = COLORS[i % COLORS.length];
+        return `<div class="glass-card p-5 border-${c}-500/20 hover:border-${c}-500/40 transition-all" style="animation:fadeInUp 0.4s ease-out ${i*0.1}s both">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold px-2 py-1 rounded-full bg-${c}-500/15 text-${c}-400 uppercase tracking-wider">Week ${ph.week}</span>
+            <span class="text-xs text-slate-500">Phase ${i+1}/${phases.length}</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-3">${ph.phase}</h3>
+          <ul class="space-y-2">
+            ${ph.tasks.map(t => `<li class="flex items-start gap-2 text-sm text-slate-400">
+              <i class="ph ph-check-circle text-${c}-500 mt-0.5 flex-shrink-0"></i>${t}</li>`).join('')}
+          </ul>
+        </div>`;
+      }).join('');
+    }
+
+    function exportRoadmap() {
+      if (!currentProject) return;
+      const { phases, milestones, totalWeeks } = window.AIEngine.generateRoadmap(currentProject);
+      let md = `# MVP Roadmap — ${currentProject.name}\n\n`;
+      md += `**Type:** ${currentProject.type} | **Score:** ${currentProject.totalScore}/100 | **Timeline:** ${totalWeeks} weeks\n\n`;
+      md += `## Key Milestones\n`;
+      milestones.forEach(m => md += `- **${m.label}** (${m.week}): ${m.desc}\n`);
+      md += `\n## Development Phases\n`;
+      phases.forEach((p, i) => {
+        md += `\n### Phase ${i+1}: ${p.phase} (Week ${p.week})\n`;
+        p.tasks.forEach(t => md += `- ${t}\n`);
+      });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([md], {type:'text/markdown'}));
+      a.download = `${currentProject.name.replace(/\s+/g,'-')}-roadmap.md`;
+      a.click();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.AuthAPI.updateNavUI();
+      await loadProjectList();
+    });
+  </script>
+  <style>
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</body>
+</html>

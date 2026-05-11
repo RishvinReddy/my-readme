@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRD Generator - Project Validator AI</title>
+  <meta name="description" content="Auto-generate a Product Requirements Document from your project analysis.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <nav class="glass sticky top-0 z-50 w-full px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="ph ph-rocket-launch text-3xl text-primary-500"></i>
+        <a href="index.html" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Project Validator AI</a>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="index.html"   class="nav-link">Home</a>
+        <a href="analyze.html" class="nav-link">Analyze</a>
+        <a href="saved.html"   class="nav-link">Saved</a>
+        <a href="compare.html" class="nav-link">Compare</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="navUserArea" class="hidden"></div>
+        <a id="navSignInBtn" href="login.html" class="btn-secondary py-2 px-4 text-sm hidden md:flex">
+          <i class="ph ph-sign-in"></i> Sign In
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow flex flex-col items-center py-12 px-4 relative overflow-hidden">
+    <div class="absolute top-10 right-10 w-96 h-96 bg-primary-600/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+
+    <div class="max-w-4xl w-full relative z-10">
+
+      <div class="mb-8">
+        <a href="saved.html" class="text-primary-500 hover:text-primary-400 text-sm flex items-center gap-1 mb-4">
+          <i class="ph ph-arrow-left"></i> Back to Saved Projects
+        </a>
+        <h1 class="text-4xl font-bold text-white flex items-center gap-3">
+          <i class="ph-fill ph-file-text text-accent-400"></i>
+          PRD Generator
+        </h1>
+        <p class="text-slate-400 mt-2">Auto-generate a Product Requirements Document from any saved project</p>
+      </div>
+
+      <!-- Selector -->
+      <div class="glass-card p-5 mb-8">
+        <label class="label-text" for="projectSelect">Select Saved Project</label>
+        <div class="flex gap-3 mt-2">
+          <select id="projectSelect" class="input-field flex-1">
+            <option value="">— Loading projects... —</option>
+          </select>
+          <button id="generateBtn" onclick="generatePRD()" class="btn-primary px-6 whitespace-nowrap" disabled>
+            <i class="ph ph-file-plus text-lg"></i> Generate PRD
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="loadingState" class="hidden glass-card p-12 text-center">
+        <i class="ph ph-spinner animate-spin text-5xl text-accent-400 mb-4 block"></i>
+        <p class="text-slate-400">Building your PRD...</p>
+      </div>
+
+      <!-- PRD Output -->
+      <div id="prdOutput" class="hidden space-y-6">
+
+        <!-- Export Bar -->
+        <div class="glass-card p-4 flex flex-wrap items-center justify-between gap-4 border-accent-500/20">
+          <div>
+            <p class="text-xs text-slate-500 uppercase tracking-wider">Document</p>
+            <p id="prdTitle" class="font-bold text-white"></p>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="exportMarkdown()" class="btn-secondary py-2 px-4 text-sm">
+              <i class="ph ph-download-simple"></i> Export MD
+            </button>
+            <button onclick="copyAll()" class="btn-secondary py-2 px-4 text-sm">
+              <i class="ph ph-copy"></i> Copy
+            </button>
+            <a id="roadmapLink" href="roadmap.html" class="btn-secondary py-2 px-4 text-sm">
+              <i class="ph ph-map-trifold"></i> Roadmap
+            </a>
+          </div>
+        </div>
+
+        <!-- PRD Content -->
+        <div id="prdContent" class="space-y-5"></div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/auth.js"></script>
+  <script src="./assets/js/scoring.js"></script>
+  <script src="./assets/js/storage.js"></script>
+  <script src="./assets/js/ai-engine.js"></script>
+  <script src="./assets/js/main.js"></script>
+  <script>
+    let currentProject = null;
+    let prdData = null;
+
+    async function loadProjectList() {
+      const sel = document.getElementById('projectSelect');
+      try {
+        const projects = await window.StorageAPI.getProjects();
+        if (!projects.length) { sel.innerHTML = '<option value="">— No projects yet —</option>'; return; }
+        sel.innerHTML = '<option value="">— Choose a project —</option>' +
+          projects.map(p => `<option value="${p.id}">${p.name} (${p.totalScore}/100)</option>`).join('');
+        sel.addEventListener('change', () => {
+          document.getElementById('generateBtn').disabled = !sel.value;
+          currentProject = projects.find(p => p.id === sel.value) || null;
+        });
+        const urlId = new URLSearchParams(window.location.search).get('id');
+        if (urlId) {
+          sel.value = urlId;
+          currentProject = projects.find(p => p.id === urlId) || null;
+          if (currentProject) { document.getElementById('generateBtn').disabled = false; generatePRD(); }
+        }
+      } catch(e) { sel.innerHTML = `<option value="">Error: ${e.message}</option>`; }
+    }
+
+    function generatePRD() {
+      if (!currentProject) return;
+      document.getElementById('loadingState').classList.remove('hidden');
+      document.getElementById('prdOutput').classList.add('hidden');
+      setTimeout(() => {
+        prdData = window.AIEngine.generatePRD(currentProject);
+        renderPRD(prdData);
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('prdOutput').classList.remove('hidden');
+        document.getElementById('roadmapLink').href = `roadmap.html?id=${currentProject.id}`;
+      }, 700);
+    }
+
+    function section(icon, title, content, colorClass = 'text-primary-500') {
+      return `<div class="glass-card p-6">
+        <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-white/5 pb-3">
+          <i class="${icon} ${colorClass}"></i> ${title}
+        </h2>
+        ${content}
+      </div>`;
+    }
+
+    function renderPRD(prd) {
+      document.getElementById('prdTitle').textContent = prd.title;
+      const c = document.getElementById('prdContent');
+
+      const sections = [
+        section('ph-fill ph-info', 'Document Info',
+          `<div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+            <div><p class="text-slate-500 text-xs uppercase mb-1">Version</p><p class="text-white font-medium">${prd.version}</p></div>
+            <div><p class="text-slate-500 text-xs uppercase mb-1">Date</p><p class="text-white font-medium">${prd.date}</p></div>
+            <div><p class="text-slate-500 text-xs uppercase mb-1">Product Type</p><p class="text-white font-medium">${prd.overview.productType}</p></div>
+          </div>`),
+
+        section('ph-fill ph-lightbulb', 'Product Overview', 
+          `<div class="space-y-4 text-sm">
+            <div><p class="text-slate-500 text-xs uppercase mb-1">One-Line Pitch</p><p class="text-slate-200 italic">"${prd.overview.oneLinePitch}"</p></div>
+            <div><p class="text-slate-500 text-xs uppercase mb-1">Problem Statement</p><p class="text-slate-300">${prd.overview.problemStatement}</p></div>
+            <div><p class="text-slate-500 text-xs uppercase mb-1">Unique Angle</p><p class="text-slate-300">${prd.overview.uniqueAngle}</p></div>
+            <div><p class="text-slate-500 text-xs uppercase mb-1">Target Users</p><p class="text-slate-300">${prd.overview.targetUsers}</p></div>
+          </div>`, 'text-accent-400'),
+
+        section('ph-fill ph-target', 'Goals & Objectives',
+          `<ul class="space-y-2">${prd.goals.map(g => `<li class="flex items-start gap-2 text-sm text-slate-300"><i class="ph ph-check-circle text-emerald-500 mt-0.5 flex-shrink-0"></i>${g}</li>`).join('')}</ul>
+          <div class="mt-4 pt-4 border-t border-white/5">
+            <p class="text-xs text-slate-500 uppercase mb-2">Out of Scope (v1)</p>
+            <ul class="space-y-1">${prd.outOfScope.map(o => `<li class="flex items-start gap-2 text-sm text-slate-500"><i class="ph ph-x-circle text-rose-500/50 mt-0.5 flex-shrink-0"></i>${o}</li>`).join('')}</ul>
+          </div>`, 'text-emerald-400'),
+
+        section('ph-fill ph-user', 'User Stories',
+          `<div class="space-y-3">${prd.userStories.map(s => `
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <span class="text-xs font-bold text-primary-400 uppercase">${s.role}</span>
+              <p class="text-sm text-slate-300 mt-1">${s.story}</p>
+            </div>`).join('')}</div>`, 'text-primary-400'),
+
+        section('ph-fill ph-code', 'Recommended Tech Stack',
+          `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            ${Object.entries(prd.techStack).filter(([,v])=>v.length>0).map(([k,v])=>`
+              <div>
+                <p class="text-slate-500 text-xs uppercase mb-2">${k}</p>
+                <div class="flex flex-wrap gap-2">${v.map(t=>`<span class="px-2 py-1 rounded-lg bg-dark-800/60 border border-white/5 text-slate-300 text-xs">${t}</span>`).join('')}</div>
+              </div>`).join('')}
+          </div>`, 'text-accent-400'),
+
+        section('ph-fill ph-chart-bar', 'Success Metrics',
+          `<ul class="space-y-2">${prd.successMetrics.map(m=>`<li class="flex items-start gap-2 text-sm text-slate-300"><i class="ph-fill ph-check-fat text-primary-500 mt-0.5 flex-shrink-0"></i>${m}</li>`).join('')}</ul>`, 'text-emerald-400'),
+
+        section('ph-fill ph-warning', 'Risks',
+          `<div class="space-y-3">${prd.risks.map(r=>`
+            <div class="flex items-start gap-3 p-3 rounded-xl ${r.severity==='High'?'bg-rose-500/5 border border-rose-500/15':'bg-amber-500/5 border border-amber-500/10'}">
+              <span class="text-xs font-bold px-2 py-0.5 rounded ${r.severity==='High'?'bg-rose-500/20 text-rose-400':'bg-amber-500/20 text-amber-400'}">${r.severity}</span>
+              <p class="text-sm text-slate-300">${r.text}</p>
+            </div>`).join('')}</div>`, 'text-rose-400'),
+      ];
+
+      c.innerHTML = sections.join('');
+    }
+
+    function exportMarkdown() {
+      if (!prdData || !currentProject) return;
+      let md = `# ${prdData.title}\n\n`;
+      md += `**Version:** ${prdData.version} | **Date:** ${prdData.date}\n\n`;
+      md += `## Overview\n- **Pitch:** ${prdData.overview.oneLinePitch}\n- **Problem:** ${prdData.overview.problemStatement}\n- **Unique Angle:** ${prdData.overview.uniqueAngle}\n\n`;
+      md += `## Goals\n${prdData.goals.map(g=>`- ${g}`).join('\n')}\n\n`;
+      md += `## Out of Scope\n${prdData.outOfScope.map(o=>`- ${o}`).join('\n')}\n\n`;
+      md += `## User Stories\n${prdData.userStories.map(s=>`**${s.role}:** ${s.story}`).join('\n\n')}\n\n`;
+      md += `## Success Metrics\n${prdData.successMetrics.map(m=>`- ${m}`).join('\n')}\n\n`;
+      md += `## Risks\n${prdData.risks.map(r=>`- [${r.severity}] ${r.text}`).join('\n')}\n`;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([md], {type:'text/markdown'}));
+      a.download = `${currentProject.name.replace(/\s+/g,'-')}-PRD.md`;
+      a.click();
+    }
+
+    function copyAll() {
+      if (!prdData) return;
+      navigator.clipboard.writeText(document.getElementById('prdContent').innerText)
+        .then(() => window.showToast('PRD copied to clipboard!', 'success'))
+        .catch(() => window.showToast('Copy failed', 'error'));
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.AuthAPI.updateNavUI();
+      await loadProjectList();
+    });
+  </script>
+</body>
+</html>

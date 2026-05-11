@@ -314,4 +314,72 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // ── Auth Nav ──────────────────────────────────────────────────────────────
+  window.AuthAPI.updateNavUI();
+
+  // ── AI Analysis Section ───────────────────────────────────────────────────
+  renderAIAnalysis(project);
+
 });
+
+function renderAIAnalysis(project) {
+  if (!window.AIEngine) return;
+  const analysis = window.AIEngine.analyzeProject(project);
+
+  // Feasibility badge
+  const feaEl = document.getElementById('aiFeaLabel');
+  if (feaEl) {
+    const colorMap = { emerald:'emerald', primary:'violet', accent:'fuchsia', amber:'amber', rose:'rose' };
+    const c = colorMap[analysis.feasibility.color] || 'slate';
+    feaEl.textContent = analysis.feasibility.label;
+    feaEl.className   = `inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-${c}-500/10 border border-${c}-500/20 text-${c}-400 font-bold text-sm mb-3`;
+  }
+
+  // Summary
+  const sumEl = document.getElementById('aiSummary');
+  if (sumEl) sumEl.textContent = analysis.summary;
+
+  // Resume + Startup
+  const resumeEl = document.getElementById('aiResume');
+  if (resumeEl) resumeEl.textContent = analysis.resumeImpact;
+  const startupEl = document.getElementById('aiStartup');
+  if (startupEl) startupEl.textContent = analysis.startupPotential;
+
+  // Risks
+  const risksEl = document.getElementById('aiRisks');
+  if (risksEl) {
+    risksEl.innerHTML = analysis.topRisks.map(r => `
+      <div class="flex items-start gap-2 p-2 rounded-lg ${r.severity==='High'?'bg-rose-500/5':'bg-amber-500/5'}">
+        <span class="text-xs font-bold px-1.5 py-0.5 rounded mt-0.5 flex-shrink-0 ${r.severity==='High'?'bg-rose-500/20 text-rose-400':'bg-amber-500/20 text-amber-400'}">${r.severity}</span>
+        <p class="text-xs text-slate-400">${r.text}</p>
+      </div>`).join('');
+  }
+
+  // Stack
+  const stackEl = document.getElementById('aiStack');
+  if (stackEl) {
+    stackEl.innerHTML = analysis.recommendedStack.map(t =>
+      `<span class="px-2 py-1 rounded-lg bg-dark-800/60 border border-white/5 text-slate-300 text-xs">${t}</span>`
+    ).join('');
+  }
+
+  // Pitch
+  const pitchEl = document.getElementById('aiPitch');
+  if (pitchEl) {
+    pitchEl.innerHTML = analysis.pitch.map(line =>
+      `<p class="text-sm text-slate-300">${line}</p>`
+    ).join('');
+  }
+
+  // Market
+  const marketEl = document.getElementById('aiMarket');
+  if (marketEl) marketEl.textContent = analysis.marketInsight;
+
+  // Wire up Roadmap + PRD quick-action links with project ID
+  const id = project.id;
+  const roadmapBtn = document.getElementById('roadmapBtn');
+  const prdBtn     = document.getElementById('prdBtn');
+  if (roadmapBtn) roadmapBtn.href = `roadmap.html?id=${id}`;
+  if (prdBtn)     prdBtn.href     = `prd.html?id=${id}`;
+}
+
