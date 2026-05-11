@@ -1,0 +1,313 @@
+/* ═══════════════════════════════════════════════════════════════
+   palette.css — Global Colour System for Project Validator AI
+   All 30 brand colours + semantic mappings + component overrides
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Raw Palette ──────────────────────────────────────────── */
+  --color-p1-orange:      #FF8324;
+  --color-p1-teal:        #009C9A;
+  --color-p1-yellow:      #FFCC00;
+  --color-p1-green:       #91E3AD;
+  --color-p1-lavender:    #D9DFF2;
+
+  --color-p2-lightblue:   #95D1DC;
+  --color-p2-coral:       #FF6B45;
+  --color-p2-lightyellow: #FFE270;
+  --color-p2-palegrey:    #E7F0EA;
+  --color-p2-deepblue:    #1A77A3;
+
+  --color-p3-mustard:     #FFD059;
+  --color-p3-coralred:    #FF6969;
+  --color-p3-seafoam:     #BBE3DA;
+  --color-p3-orange:      #FF9200;
+  --color-p3-cream:       #F7F0C8;
+
+  --color-p4-deepteal:    #0091B9;
+  --color-p4-palesky:     #BAE4F0;
+  --color-p4-darkblue:    #004E9B;
+  --color-p4-redorange:   #FF6500;
+  --color-p4-golden:      #FFD500;
+
+  --color-p5-palegrey:    #E4E0E8;
+  --color-p5-crimson:     #FA2F39;
+  --color-p5-tealgreen:   #99B5BC;
+  --color-p5-palepink:    #FFD9E0;
+  --color-p5-forest:      #337F7B;
+
+  --color-p6-periwinkle:  #8B91DD;
+  --color-p6-peach:       #EBC9C2;
+  --color-p6-magenta:     #FB0043;
+  --color-p6-palelavender:#CCDBF5;
+  --color-p6-lightorange: #F8A679;
+
+  /* ── Semantic Roles ──────────────────────────────────────── */
+  --clr-accent-primary:   var(--color-p1-orange);
+  --clr-accent-secondary: var(--color-p4-deepteal);
+  --clr-accent-warm:      var(--color-p2-coral);
+  --clr-accent-cool:      var(--color-p2-lightblue);
+  --clr-accent-success:   var(--color-p1-teal);
+  --clr-accent-warning:   var(--color-p3-mustard);
+  --clr-accent-danger:    var(--color-p5-crimson);
+  --clr-accent-info:      var(--color-p2-deepblue);
+  --clr-accent-gold:      var(--color-p4-golden);
+  --clr-accent-purple:    var(--color-p6-periwinkle);
+  --clr-accent-highlight: var(--color-p1-yellow);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLASS CARD — palette-tinted hover glow
+   ═══════════════════════════════════════════════════════════════ */
+.glass-card {
+  border: 1px solid rgba(255,255,255,.06) !important;
+  transition: border-color .35s, box-shadow .35s, transform .35s, background .35s !important;
+}
+.glass-card:hover {
+  border-color: rgba(255,131,36,.25) !important;
+  box-shadow: 0 0 40px rgba(255,131,36,.08), 0 8px 32px rgba(0,0,0,.4) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════════════════════ */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-p1-orange), var(--color-p2-coral)) !important;
+  border: 1px solid rgba(255,131,36,.4) !important;
+  box-shadow: 0 0 20px rgba(255,131,36,.25) !important;
+  color: #fff !important;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-p4-redorange), var(--color-p1-orange)) !important;
+  box-shadow: 0 0 30px rgba(255,131,36,.45) !important;
+}
+.btn-secondary {
+  border-color: rgba(255,255,255,.10) !important;
+}
+.btn-secondary:hover {
+  border-color: rgba(255,131,36,.3) !important;
+  color: var(--color-p1-orange) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INPUT FIELDS
+   ═══════════════════════════════════════════════════════════════ */
+.input-field:focus {
+  border-color: var(--color-p1-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255,131,36,.12) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════════════ */
+.nav-link.active { color: var(--color-p1-orange) !important; }
+.nav-link:hover  { color: var(--color-p6-lightorange) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   TOASTS
+   ═══════════════════════════════════════════════════════════════ */
+.toast-success { border-left-color: var(--color-p1-teal) !important; }
+.toast-error   { border-left-color: var(--color-p5-crimson) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCORE / TIER COLOUR SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+/* Used on badges, tier labels, score circles */
+.tier-5, [data-tier="Tier 5"] { color: var(--color-p4-golden) !important; }
+.tier-4, [data-tier="Tier 4"] { color: var(--color-p1-orange) !important; }
+.tier-3, [data-tier="Tier 3"] { color: var(--color-p2-lightblue) !important; }
+.tier-2, [data-tier="Tier 2"] { color: var(--color-p1-green) !important; }
+.tier-1, [data-tier="Tier 1"] { color: var(--color-p5-tealgreen) !important; }
+
+/* Tier card borders */
+.border-tier-5 { border-color: rgba(255,213,0,.3) !important; }
+.border-tier-4 { border-color: rgba(255,131,36,.3) !important; }
+.border-tier-3 { border-color: rgba(149,209,220,.3) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PALETTE UTILITY CLASSES  (bg / text / border)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Backgrounds ─────────────────────────────────────────── */
+.bg-pal-orange      { background-color: var(--color-p1-orange) !important; }
+.bg-pal-teal        { background-color: var(--color-p1-teal) !important; }
+.bg-pal-yellow      { background-color: var(--color-p1-yellow) !important; }
+.bg-pal-green       { background-color: var(--color-p1-green) !important; }
+.bg-pal-coral       { background-color: var(--color-p2-coral) !important; }
+.bg-pal-lightblue   { background-color: var(--color-p2-lightblue) !important; }
+.bg-pal-deepblue    { background-color: var(--color-p2-deepblue) !important; }
+.bg-pal-mustard     { background-color: var(--color-p3-mustard) !important; }
+.bg-pal-seafoam     { background-color: var(--color-p3-seafoam) !important; }
+.bg-pal-deepteal    { background-color: var(--color-p4-deepteal) !important; }
+.bg-pal-golden      { background-color: var(--color-p4-golden) !important; }
+.bg-pal-crimson     { background-color: var(--color-p5-crimson) !important; }
+.bg-pal-forest      { background-color: var(--color-p5-forest) !important; }
+.bg-pal-periwinkle  { background-color: var(--color-p6-periwinkle) !important; }
+.bg-pal-magenta     { background-color: var(--color-p6-magenta) !important; }
+
+/* Alpha tints (10%) */
+.bg-pal-orange-t    { background-color: rgba(255,131,36,.1) !important; }
+.bg-pal-teal-t      { background-color: rgba(0,156,154,.1) !important; }
+.bg-pal-coral-t     { background-color: rgba(255,107,69,.1) !important; }
+.bg-pal-lightblue-t { background-color: rgba(149,209,220,.08) !important; }
+.bg-pal-golden-t    { background-color: rgba(255,213,0,.08) !important; }
+.bg-pal-crimson-t   { background-color: rgba(250,47,57,.08) !important; }
+.bg-pal-periwinkle-t{ background-color: rgba(139,145,221,.08) !important; }
+.bg-pal-seafoam-t   { background-color: rgba(187,227,218,.08) !important; }
+.bg-pal-mustard-t   { background-color: rgba(255,208,89,.08) !important; }
+.bg-pal-forest-t    { background-color: rgba(51,127,123,.1) !important; }
+
+/* ── Text ────────────────────────────────────────────────── */
+.text-pal-orange    { color: var(--color-p1-orange) !important; }
+.text-pal-teal      { color: var(--color-p1-teal) !important; }
+.text-pal-yellow    { color: var(--color-p1-yellow) !important; }
+.text-pal-green     { color: var(--color-p1-green) !important; }
+.text-pal-coral     { color: var(--color-p2-coral) !important; }
+.text-pal-lightblue { color: var(--color-p2-lightblue) !important; }
+.text-pal-deepblue  { color: var(--color-p2-deepblue) !important; }
+.text-pal-mustard   { color: var(--color-p3-mustard) !important; }
+.text-pal-coralred  { color: var(--color-p3-coralred) !important; }
+.text-pal-seafoam   { color: var(--color-p3-seafoam) !important; }
+.text-pal-deepteal  { color: var(--color-p4-deepteal) !important; }
+.text-pal-golden    { color: var(--color-p4-golden) !important; }
+.text-pal-crimson   { color: var(--color-p5-crimson) !important; }
+.text-pal-forest    { color: var(--color-p5-forest) !important; }
+.text-pal-periwinkle{ color: var(--color-p6-periwinkle) !important; }
+.text-pal-magenta   { color: var(--color-p6-magenta) !important; }
+.text-pal-peach     { color: var(--color-p6-peach) !important; }
+.text-pal-lightorange { color: var(--color-p6-lightorange) !important; }
+
+/* ── Borders ─────────────────────────────────────────────── */
+.border-pal-orange    { border-color: rgba(255,131,36,.35) !important; }
+.border-pal-teal      { border-color: rgba(0,156,154,.35) !important; }
+.border-pal-coral     { border-color: rgba(255,107,69,.35) !important; }
+.border-pal-golden    { border-color: rgba(255,213,0,.35) !important; }
+.border-pal-lightblue { border-color: rgba(149,209,220,.35) !important; }
+.border-pal-crimson   { border-color: rgba(250,47,57,.35) !important; }
+.border-pal-periwinkle{ border-color: rgba(139,145,221,.35) !important; }
+.border-pal-seafoam   { border-color: rgba(187,227,218,.35) !important; }
+.border-pal-mustard   { border-color: rgba(255,208,89,.35) !important; }
+.border-pal-forest    { border-color: rgba(51,127,123,.35) !important; }
+
+/* ── Gradient Texts ──────────────────────────────────────── */
+.grad-orange-coral {
+  background: linear-gradient(135deg, var(--color-p1-orange), var(--color-p2-coral));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.grad-teal-blue {
+  background: linear-gradient(135deg, var(--color-p1-teal), var(--color-p4-deepteal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.grad-gold-orange {
+  background: linear-gradient(135deg, var(--color-p4-golden), var(--color-p1-orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.grad-periwinkle-lightblue {
+  background: linear-gradient(135deg, var(--color-p6-periwinkle), var(--color-p2-lightblue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Coloured SVG / Icon fills ───────────────────────────── */
+.stroke-pal-orange   { stroke: var(--color-p1-orange) !important; }
+.stroke-pal-teal     { stroke: var(--color-p1-teal) !important; }
+.stroke-pal-lightblue{ stroke: var(--color-p2-lightblue) !important; }
+.stroke-pal-golden   { stroke: var(--color-p4-golden) !important; }
+.stroke-pal-crimson  { stroke: var(--color-p5-crimson) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SPECIFIC COMPONENT OVERRIDES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Score circle rings — override stroke with palette */
+#scoreCircle           { stroke: var(--color-p1-orange) !important; }
+#readmeCircle          { stroke: var(--color-p6-periwinkle) !important; }
+#activityCircle        { stroke: var(--color-p4-deepteal) !important; }
+#structureCircle       { stroke: var(--color-p1-teal) !important; }
+
+/* Scrollbar palette tint */
+::-webkit-scrollbar-thumb         { background: var(--color-p4-darkblue) !important; }
+::-webkit-scrollbar-thumb:hover   { background: var(--color-p4-deepteal) !important; }
+
+/* Sticky nav border-bottom glow */
+nav.glass {
+  border-bottom: 1px solid rgba(255,131,36,.12) !important;
+}
+
+/* ── Domain-specific badge colours ─────────────────────────── */
+/* Applied when JS sets domain classes on cards */
+.domain-ai         { border-color: rgba(139,145,221,.35) !important; color: var(--color-p6-periwinkle) !important; }
+.domain-saas       { border-color: rgba(0,156,154,.35)   !important; color: var(--color-p1-teal)        !important; }
+.domain-web        { border-color: rgba(149,209,220,.35) !important; color: var(--color-p2-lightblue)   !important; }
+.domain-mobile     { border-color: rgba(255,131,36,.35)  !important; color: var(--color-p1-orange)      !important; }
+.domain-blockchain { border-color: rgba(255,213,0,.35)   !important; color: var(--color-p4-golden)      !important; }
+.domain-iot        { border-color: rgba(51,127,123,.35)  !important; color: var(--color-p5-forest)      !important; }
+.domain-cyber      { border-color: rgba(250,47,57,.35)   !important; color: var(--color-p5-crimson)     !important; }
+
+/* Feasibility labels */
+.fea-excellent { color: var(--color-p1-teal)   !important; border-color: rgba(0,156,154,.3)   !important; background: rgba(0,156,154,.08)   !important; }
+.fea-strong    { color: var(--color-p1-orange) !important; border-color: rgba(255,131,36,.3)  !important; background: rgba(255,131,36,.08)  !important; }
+.fea-moderate  { color: var(--color-p3-mustard)!important; border-color: rgba(255,208,89,.3)  !important; background: rgba(255,208,89,.08)  !important; }
+.fea-risky     { color: var(--color-p5-crimson)!important; border-color: rgba(250,47,57,.3)   !important; background: rgba(250,47,57,.08)   !important; }
+
+/* ── Mentor widget palette ────────────────────────────────── */
+#mentorTrigger {
+  background: linear-gradient(135deg, var(--color-p1-orange), var(--color-p2-coral)) !important;
+  box-shadow: 0 0 30px rgba(255,131,36,.45) !important;
+}
+#mentorBadge { background: var(--color-p1-teal) !important; }
+
+/* ── Hackathon Mode banner ───────────────────────────────── */
+.hackathon-high   { border-color: rgba(0,156,154,.4)   !important; background: rgba(0,156,154,.06)   !important; }
+.hackathon-mid    { border-color: rgba(255,131,36,.4)  !important; background: rgba(255,131,36,.06)  !important; }
+.hackathon-risky  { border-color: rgba(255,208,89,.4)  !important; background: rgba(255,208,89,.06)  !important; }
+.hackathon-low    { border-color: rgba(250,47,57,.4)   !important; background: rgba(250,47,57,.06)   !important; }
+
+/* ── Loading skeleton shimmer ────────────────────────────── */
+@keyframes pal-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,131,36,.05) 0%,
+    rgba(149,209,220,.1) 40%,
+    rgba(255,131,36,.05) 80%) !important;
+  background-size: 800px 100% !important;
+  animation: pal-shimmer 1.6s infinite linear !important;
+}
+
+/* ── Marketplace upvote button ───────────────────────────── */
+button[onclick*="vote"]:hover { color: var(--color-p1-orange) !important; }
+button[onclick*="forkIdea"]:hover { color: var(--color-p4-deepteal) !important; }
+
+/* ── Link colours ────────────────────────────────────────── */
+a.text-primary-400 { color: var(--color-p1-orange) !important; }
+a.text-primary-400:hover { color: var(--color-p6-lightorange) !important; }
+a.text-primary-500 { color: var(--color-p1-orange) !important; }
+
+/* ── Score bar gradient ──────────────────────────────────── */
+.bg-gradient-to-r.from-primary-500.to-accent-500,
+.bg-gradient-to-r.from-primary-600.to-accent-500 {
+  background: linear-gradient(90deg, var(--color-p1-orange), var(--color-p4-deepteal)) !important;
+}
+
+/* ── Phosphor icon colour helpers ────────────────────────── */
+.ph-fill.ph-robot        { color: var(--color-p6-periwinkle); }
+.ph-fill.ph-brain        { color: var(--color-p6-periwinkle); }
+.ph-fill.ph-map-trifold  { color: var(--color-p4-deepteal);   }
+.ph-fill.ph-file-text    { color: var(--color-p2-lightblue);  }
+.ph-fill.ph-github-logo  { color: var(--color-p1-green);      }
+.ph-fill.ph-timer        { color: var(--color-p3-coralred);   }
+.ph-fill.ph-storefront   { color: var(--color-p3-mustard);    }
+.ph-fill.ph-users-three  { color: var(--color-p4-deepteal);   }
+.ph-fill.ph-trophy       { color: var(--color-p4-golden);     }
+.ph-fill.ph-warning      { color: var(--color-p3-mustard);    }
+.ph-fill.ph-check-circle { color: var(--color-p1-teal);       }
+.ph-fill.ph-trend-up     { color: var(--color-p1-green);      }
+.ph-fill.ph-lightning    { color: var(--color-p1-yellow);     }
+.ph-fill.ph-fire         { color: var(--color-p2-coral);      }
+.ph-fill.ph-megaphone    { color: var(--color-p1-orange);     }
+.ph-fill.ph-stack        { color: var(--color-p2-lightblue);  }
