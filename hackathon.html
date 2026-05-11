@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hackathon Mode - Project Validator AI</title>
+  <meta name="description" content="Can you build it in 24 hours? Hackathon feasibility analyzer for rapid MVP planning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <nav class="glass sticky top-0 z-50 w-full px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="ph ph-rocket-launch text-3xl text-primary-500"></i>
+        <a href="index.html" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Project Validator AI</a>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="index.html"   class="nav-link">Home</a>
+        <a href="analyze.html" class="nav-link">Analyze</a>
+        <a href="saved.html"   class="nav-link">Saved</a>
+        <a href="compare.html" class="nav-link">Compare</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="navUserArea" class="hidden"></div>
+        <a id="navSignInBtn" href="login.html" class="btn-secondary py-2 px-4 text-sm hidden md:flex">
+          <i class="ph ph-sign-in"></i> Sign In
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow flex flex-col items-center py-12 px-4 relative overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-rose-500/10 rounded-full blur-[150px] -z-10 pointer-events-none"></div>
+    <div class="absolute bottom-0 right-0 w-80 h-80 bg-primary-500/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+
+    <div class="max-w-4xl w-full relative z-10">
+
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm mb-6 animate-pulse">
+          <i class="ph-fill ph-timer text-lg"></i> Hackathon Mode
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+          Can You <span class="bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-primary-400">Ship It?</span>
+        </h1>
+        <p class="text-slate-400 max-w-lg mx-auto">Enter your idea. We tell you if it's hackathon-viable, what to cut, what to keep, and how to win.</p>
+      </div>
+
+      <!-- Form Card -->
+      <div class="glass-card p-8 mb-8 border-rose-500/10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+          <!-- Idea Input -->
+          <div class="md:col-span-2">
+            <label class="label-text" for="hackIdea">Your Hackathon Idea</label>
+            <textarea id="hackIdea" rows="3" class="input-field w-full resize-none"
+              placeholder="e.g. An AI-powered mental health chatbot that matches users with the right therapy approach using GPT-4 and sentiment analysis..."></textarea>
+          </div>
+
+          <!-- Time Limit -->
+          <div>
+            <label class="label-text" for="timeLimit">Hackathon Duration</label>
+            <select id="timeLimit" class="input-field w-full">
+              <option value="12">12 Hours (Sprint)</option>
+              <option value="24" selected>24 Hours (Standard)</option>
+              <option value="36">36 Hours</option>
+              <option value="48">48 Hours (Weekend)</option>
+              <option value="72">72 Hours (3-Day)</option>
+            </select>
+          </div>
+
+          <!-- Team Size -->
+          <div>
+            <label class="label-text" for="teamSize">Your Team Size</label>
+            <select id="teamSize" class="input-field w-full">
+              <option value="1">Solo (1 person)</option>
+              <option value="2">Duo (2 people)</option>
+              <option value="3" selected>Small Team (3 people)</option>
+              <option value="4">Standard Team (4 people)</option>
+              <option value="5">Large Team (5+ people)</option>
+            </select>
+          </div>
+
+          <!-- Tech Level -->
+          <div>
+            <label class="label-text" for="techLevel">Team Tech Level</label>
+            <select id="techLevel" class="input-field w-full">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate" selected>Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+
+          <!-- Theme -->
+          <div>
+            <label class="label-text" for="hackTheme">Hackathon Theme <span class="text-slate-600">(optional)</span></label>
+            <input type="text" id="hackTheme" class="input-field w-full" placeholder="e.g. Healthcare, FinTech, Climate, Open...">
+          </div>
+
+        </div>
+
+        <button id="analyzeBtn" onclick="runHackathonAnalysis()" class="btn-primary w-full py-3">
+          <i class="ph-fill ph-timer text-lg"></i> Analyze Hackathon Viability
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div id="results" class="hidden space-y-6">
+
+        <!-- Verdict Banner -->
+        <div id="verdictBanner" class="glass-card p-6 text-center border-2">
+          <div class="text-5xl font-bold mb-2" id="verdictEmoji">⚡</div>
+          <h2 id="verdictTitle" class="text-2xl font-bold text-white mb-2">—</h2>
+          <p id="verdictDesc" class="text-slate-400 max-w-xl mx-auto">—</p>
+          <div class="flex justify-center gap-6 mt-4">
+            <div class="text-center">
+              <p class="text-2xl font-bold text-white" id="hackScore">—</p>
+              <p class="text-xs text-slate-500 uppercase tracking-wider">Hackathon Score</p>
+            </div>
+            <div class="text-center">
+              <p class="text-2xl font-bold text-amber-400" id="winChance">—</p>
+              <p class="text-xs text-slate-500 uppercase tracking-wider">Win Probability</p>
+            </div>
+            <div class="text-center">
+              <p class="text-2xl font-bold text-primary-400" id="teamRec">—</p>
+              <p class="text-xs text-slate-500 uppercase tracking-wider">Ideal Team Size</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3-column detail -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+          <!-- What to Build -->
+          <div class="glass-card p-5 border-emerald-500/20">
+            <h3 class="font-bold text-white mb-3 flex items-center gap-2">
+              <i class="ph-fill ph-check-fat text-emerald-400"></i> Build This MVP
+            </h3>
+            <ul id="buildList" class="space-y-2"></ul>
+          </div>
+
+          <!-- What to Cut -->
+          <div class="glass-card p-5 border-rose-500/20">
+            <h3 class="font-bold text-white mb-3 flex items-center gap-2">
+              <i class="ph-fill ph-scissors text-rose-400"></i> Cut This (Scope Creep)
+            </h3>
+            <ul id="cutList" class="space-y-2"></ul>
+          </div>
+
+          <!-- Win Strategy -->
+          <div class="glass-card p-5 border-primary-500/20">
+            <h3 class="font-bold text-white mb-3 flex items-center gap-2">
+              <i class="ph-fill ph-trophy text-amber-400"></i> Win Strategy
+            </h3>
+            <ul id="winList" class="space-y-2"></ul>
+          </div>
+        </div>
+
+        <!-- Time Schedule -->
+        <div class="glass-card p-6">
+          <h3 class="font-bold text-white mb-5 flex items-center gap-2 border-b border-white/5 pb-3">
+            <i class="ph-fill ph-clock text-primary-500"></i>
+            <span id="scheduleTitle">24-Hour Battle Plan</span>
+          </h3>
+          <div id="schedule" class="space-y-3"></div>
+        </div>
+
+        <!-- Stack Recommendation -->
+        <div class="glass-card p-6">
+          <h3 class="font-bold text-white mb-4 flex items-center gap-2 border-b border-white/5 pb-3">
+            <i class="ph-fill ph-stack text-accent-400"></i> Fastest Stack for This Hackathon
+          </h3>
+          <div id="hackStack" class="flex flex-wrap gap-2 mb-3"></div>
+          <p id="stackReason" class="text-sm text-slate-400"></p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="analyze.html" class="btn-secondary py-3 px-8">
+            <i class="ph ph-clipboard text-lg"></i> Full Project Analysis
+          </a>
+          <a href="roadmap.html" class="btn-primary py-3 px-8">
+            <i class="ph ph-map-trifold text-lg"></i> Generate Roadmap
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/auth.js"></script>
+  <script src="./assets/js/main.js"></script>
+  <script>
+    // ── Hackathon Analysis Engine ─────────────────────────────────────────────
+    const FAST_STACKS = {
+      ai:       { stack: ['Next.js + Vercel','OpenAI API','Supabase','Tailwind CSS'], reason: 'Next.js + OpenAI is the fastest AI prototype stack in 2024. Deploy free on Vercel in minutes.' },
+      web:      { stack: ['Next.js + Vercel','Supabase Auth','Tailwind CSS','Shadcn/UI'], reason: 'Next.js with Supabase gives you auth, database, and deployment in under 30 minutes.' },
+      mobile:   { stack: ['React Native + Expo','Supabase','NativeWind'], reason: 'Expo allows instant preview on real devices without app store submission.' },
+      data:     { stack: ['Python + Streamlit','Pandas','Plotly','HuggingFace'], reason: 'Streamlit lets you build a data app in hours, not days. Perfect for hackathons.' },
+      hardware: { stack: ['Raspberry Pi','Python/Flask','MQTT','React Dashboard'], reason: 'Flask as an IoT gateway with a React dashboard is the fastest hardware-to-web pipeline.' },
+      default:  { stack: ['Next.js','Supabase','Tailwind CSS','Vercel'], reason: 'This stack lets you go from zero to deployed app in under 2 hours.' },
+    };
+
+    const SCHEDULES = {
+      12: [
+        { time: '0–1h',   phase: 'Setup',       tasks: 'Define exact MVP scope, set up repo, deploy skeleton to Vercel' },
+        { time: '1–5h',   phase: 'Core Build',  tasks: 'Implement 1–2 core features only. No auth, no design yet.' },
+        { time: '5–8h',   phase: 'Integration', tasks: 'Wire up data, basic UI, fix bugs. Get a working demo.' },
+        { time: '8–10h',  phase: 'Polish',      tasks: 'UI polish, demo flow, handle edge cases. Prepare slides.' },
+        { time: '10–12h', phase: 'Submit',       tasks: 'Record demo video, write README, final submission.' },
+      ],
+      24: [
+        { time: '0–2h',   phase: 'Setup & Scope', tasks: 'Team alignment, repo setup, deploy skeleton, agree on 3 features only' },
+        { time: '2–10h',  phase: 'Core Build',    tasks: 'Build primary feature. One person on backend, one on frontend if possible.' },
+        { time: '10–14h', phase: 'Integration',   tasks: 'Connect all parts. Working end-to-end demo. Brief sleep if needed.' },
+        { time: '14–18h', phase: 'Features + Fix',tasks: 'Add 1 secondary feature. Fix bugs. Improve UX flow.' },
+        { time: '18–21h', phase: 'Polish',        tasks: 'UI design pass, loading states, error handling, demo script.' },
+        { time: '21–23h', phase: 'Submission',    tasks: 'README, demo video, slides, deploy final version.' },
+        { time: '23–24h', phase: 'Buffer',        tasks: '🚨 Emergency buffer for last-minute bugs. Don\'t use for features.' },
+      ],
+      36: [
+        { time: '0–2h',   phase: 'Planning',      tasks: 'Align team, choose stack, define exact MVP, set up everything' },
+        { time: '2–14h',  phase: 'Core Dev',      tasks: 'Main feature complete, basic working app' },
+        { time: '14–22h', phase: 'Features',      tasks: 'Add secondary features, API integrations' },
+        { time: '22–30h', phase: 'Polish',        tasks: 'Full UI pass, fix all bugs, demo flow' },
+        { time: '30–35h', phase: 'Finalize',      tasks: 'README, demo video, slides, submission' },
+        { time: '35–36h', phase: 'Buffer',        tasks: 'Emergency buffer' },
+      ],
+      48: [
+        { time: '0–3h',   phase: 'Planning',      tasks: 'Full planning session, wireframes, stack decision' },
+        { time: '3–20h',  phase: 'MVP Build',     tasks: 'Core feature complete and deployed' },
+        { time: '20–30h', phase: 'Feature Expansion', tasks: 'Add differentiating features, AI/ML if applicable' },
+        { time: '30–40h', phase: 'Polish + Test', tasks: 'Full UI redesign, user testing, bug fixes' },
+        { time: '40–45h', phase: 'Pitch Prep',    tasks: 'Demo video, slides, storytelling' },
+        { time: '45–48h', phase: 'Submission + Buffer', tasks: 'Final submission, buffer for issues' },
+      ],
+      72: [
+        { time: 'Day 1',  phase: 'Design + Architecture', tasks: 'Full wireframes, DB schema, API design, repo setup' },
+        { time: 'Day 2',  phase: 'Core Development', tasks: 'Full MVP with primary and secondary features' },
+        { time: 'Day 3',  phase: 'Polish + Launch', tasks: 'UI excellence, performance, pitch prep, submission' },
+      ],
+    };
+
+    function detectCategory(idea) {
+      const t = idea.toLowerCase();
+      if (t.includes('ai') || t.includes('ml') || t.includes('gpt') || t.includes('llm') || t.includes('chatbot') || t.includes('neural')) return 'ai';
+      if (t.includes('mobile') || t.includes('app') || t.includes('ios') || t.includes('android')) return 'mobile';
+      if (t.includes('iot') || t.includes('sensor') || t.includes('hardware') || t.includes('arduino') || t.includes('raspberry')) return 'hardware';
+      if (t.includes('data') || t.includes('analytics') || t.includes('dashboard') || t.includes('visualization')) return 'data';
+      return 'web';
+    }
+
+    function calculateHackScore(idea, hours, teamSize, techLevel) {
+      let complexity = 50;
+      const t = idea.toLowerCase();
+
+      // Complexity adjustments
+      if (t.includes('blockchain') || t.includes('web3')) complexity += 20;
+      if (t.includes('ai') || t.includes('ml'))           complexity += 15;
+      if (t.includes('realtime') || t.includes('real-time')) complexity += 10;
+      if (t.includes('hardware') || t.includes('iot'))    complexity += 25;
+      if (t.includes('simple') || t.includes('basic'))    complexity -= 20;
+      if (t.includes('chrome extension'))                  complexity -= 15;
+
+      // Time buffer
+      const timeMultiplier = hours / 24;
+      // Team benefit
+      const teamBonus = Math.min((parseInt(teamSize) - 1) * 8, 25);
+      // Tech level
+      const techBonus = techLevel === 'advanced' ? 15 : techLevel === 'intermediate' ? 5 : -10;
+
+      const feasibility = Math.min(100, Math.max(0, 100 - complexity + (timeMultiplier - 1) * 30 + teamBonus + techBonus));
+      return Math.round(feasibility);
+    }
+
+    function getVerdict(score, hours) {
+      if (score >= 80) return {
+        emoji: '🚀', color: 'border-emerald-500/40 bg-emerald-500/5',
+        title: 'SHIP IT. High Hackathon Viability.',
+        desc: `This idea is very achievable in ${hours}h with good execution. Focus on one killer demo flow.`,
+        winChance: '65%+'
+      };
+      if (score >= 60) return {
+        emoji: '⚡', color: 'border-primary-500/40 bg-primary-500/5',
+        title: 'FEASIBLE — Scope It Down First.',
+        desc: `Achievable in ${hours}h if you cut non-essential features ruthlessly. Define your demo path now.`,
+        winChance: '40–65%'
+      };
+      if (score >= 40) return {
+        emoji: '⚠️', color: 'border-amber-500/40 bg-amber-500/5',
+        title: 'RISKY — Heavy Simplification Needed.',
+        desc: `Possible in ${hours}h only if you strip to an absolute minimum. Consider a smaller sub-problem.`,
+        winChance: '20–40%'
+      };
+      return {
+        emoji: '🔴', color: 'border-rose-500/40 bg-rose-500/5',
+        title: 'TOO AMBITIOUS — Pivot the Scope.',
+        desc: `This idea is too complex for ${hours}h. Pick a core sub-feature and build only that. Judges reward working demos over ambitious failures.`,
+        winChance: '< 20%'
+      };
+    }
+
+    function getBuildList(idea, hours, techLevel) {
+      const base = [
+        'Working end-to-end demo (even with mock data)',
+        'Single core feature that solves the problem',
+        'Clean, presentable UI (judges look at this first)',
+        'Deployed and accessible via public URL',
+      ];
+      if (hours >= 24) base.push('Basic authentication (Supabase makes this 30 min)');
+      if (idea.toLowerCase().includes('ai')) base.push('AI integration with 2–3 demo prompts hardcoded');
+      return base;
+    }
+
+    function getCutList(idea, score) {
+      const cuts = [
+        'Full user authentication system (use guest mode first)',
+        'Mobile responsiveness (desktop-only is fine for demo)',
+        'Error handling edge cases (happy path only)',
+        'Complex database relations (use simple flat tables)',
+        'Payment integration (mock it in the demo)',
+        'Admin dashboard',
+      ];
+      if (score < 50) cuts.unshift('Multiple user roles (single role only)');
+      return cuts.slice(0, 5);
+    }
+
+    function getWinStrategy(category, hours) {
+      return [
+        '🎯 Demo the WOW moment first — judges see 50+ projects. Lead with the best 30 seconds.',
+        '📖 Tell a story: "Person had problem → tried solutions → none worked → we built this"',
+        '🔴 If something breaks, have a backup demo video ready',
+        `⏱️ Practice your ${hours >= 48 ? '5-minute' : '3-minute'} pitch at least 3 times`,
+        '📊 Show data/metrics even if fake — "potential 10M users in this market"',
+        '✨ Add one unexpected delight (Easter egg, animation, clever feature judges will talk about)',
+      ];
+    }
+
+    function runHackathonAnalysis() {
+      const idea     = document.getElementById('hackIdea').value.trim();
+      const hours    = parseInt(document.getElementById('timeLimit').value);
+      const teamSize = document.getElementById('teamSize').value;
+      const techLevel = document.getElementById('techLevel').value;
+
+      if (!idea) { window.showToast('Please enter your hackathon idea', 'error'); return; }
+
+      const btn = document.getElementById('analyzeBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ph ph-spinner animate-spin text-lg"></i> Analyzing...';
+
+      setTimeout(() => {
+        const category = detectCategory(idea);
+        const score    = calculateHackScore(idea, hours, teamSize, techLevel);
+        const verdict  = getVerdict(score, hours);
+        const idealTeam = teamSize <= 2 ? '2–3' : teamSize <= 3 ? '3–4' : '4–5';
+        const stackInfo = FAST_STACKS[category] || FAST_STACKS.default;
+
+        // Verdict banner
+        document.getElementById('verdictEmoji').textContent = verdict.emoji;
+        document.getElementById('verdictTitle').textContent = verdict.title;
+        document.getElementById('verdictDesc').textContent  = verdict.desc;
+        document.getElementById('hackScore').textContent    = `${score}/100`;
+        document.getElementById('winChance').textContent    = verdict.winChance;
+        document.getElementById('teamRec').textContent      = `${idealTeam} people`;
+        const banner = document.getElementById('verdictBanner');
+        banner.className = `glass-card p-6 text-center border-2 ${verdict.color}`;
+
+        // Lists
+        const li = items => items.map(i => `<li class="flex items-start gap-2 text-sm text-slate-300">
+          <i class="ph ph-dot-outline mt-0.5 flex-shrink-0 text-primary-400"></i>${i}</li>`).join('');
+        document.getElementById('buildList').innerHTML = li(getBuildList(idea, hours, techLevel));
+        document.getElementById('cutList').innerHTML   = li(getCutList(idea, score));
+        document.getElementById('winList').innerHTML   = li(getWinStrategy(category, hours));
+
+        // Schedule
+        const sched = SCHEDULES[hours] || SCHEDULES[24];
+        document.getElementById('scheduleTitle').textContent = `${hours}-Hour Battle Plan`;
+        document.getElementById('schedule').innerHTML = sched.map((s, i) => `
+          <div class="flex items-start gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+            <div class="flex-shrink-0">
+              <span class="text-xs font-bold px-2 py-1 rounded-lg bg-primary-500/15 text-primary-400">${s.time}</span>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">${s.phase}</p>
+              <p class="text-xs text-slate-400 mt-0.5">${s.tasks}</p>
+            </div>
+          </div>`).join('');
+
+        // Stack
+        document.getElementById('hackStack').innerHTML = stackInfo.stack.map(s =>
+          `<span class="px-3 py-1 rounded-lg border border-white/10 bg-dark-800/60 text-slate-300 text-sm font-medium">${s}</span>`
+        ).join('');
+        document.getElementById('stackReason').textContent = stackInfo.reason;
+
+        document.getElementById('results').classList.remove('hidden');
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ph-fill ph-timer text-lg"></i> Analyze Hackathon Viability';
+      }, 800);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.AuthAPI.updateNavUI();
+    });
+  </script>
+</body>
+</html>
