@@ -47,6 +47,11 @@ function rowToProject(row) {
  * Converts a project object → the column payload Supabase expects.
  */
 function projectToRow(projectData, id, now) {
+  // Get current user ID if auth is available
+  const userId = window._supabase?.auth?.getUser
+    ? undefined  // resolved async in saveProject
+    : null;
+
   return {
     id,
     created_at:        projectData.createdAt || now,
@@ -102,6 +107,7 @@ async function getProjects() {
 
 /**
  * Saves a new project or upserts an existing one.
+ * Automatically attaches the current user's ID if logged in.
  * @param {Object} projectData
  * @returns {Promise<string>} The UUID of the saved project
  */
@@ -109,9 +115,15 @@ async function saveProject(projectData) {
   const now = new Date().toISOString();
   const id  = projectData.id || crypto.randomUUID();
 
+  // Get current user (null if not logged in)
+  const { data: { user } } = await db().auth.getUser();
+
+  const row = projectToRow(projectData, id, now);
+  if (user) row.user_id = user.id;
+
   const { error } = await db()
     .from('projects')
-    .upsert(projectToRow(projectData, id, now), { onConflict: 'id' });
+    .upsert(row, { onConflict: 'id' });
 
   if (error) {
     console.error('StorageAPI.saveProject error:', error.message);

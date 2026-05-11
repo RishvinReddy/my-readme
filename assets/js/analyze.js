@@ -187,62 +187,22 @@ document.addEventListener('DOMContentLoaded', () => {
         scores: {}
       };
 
-      // Gather Scores
-      let totalScore = 0;
+      // Gather Scores (raw 1-10 per criterion)
       scorecardCriteria.forEach(criteria => {
         const val = parseInt(document.getElementById(criteria.id).value, 10);
         projectData.scores[criteria.id] = val;
-        totalScore += val;
       });
 
-      // Calculate out of 100 instead of 150 for easy understanding?
-      // Wait, there are 15 criteria * 10 max = 150 total. 
-      // The prompt framework says: Total Score Verdict (85-100 BUILD IMMEDIATELY).
-      // If 15 criteria, total is 150. Let's map it to 100% scale.
-      const normalizedScore = Math.round((totalScore / 150) * 100);
-      projectData.totalScore = normalizedScore;
-      
-      // Calculate specific metrics for radar chart
-      projectData.metrics = {
-        technical: Math.round((projectData.scores.score_techDepth + projectData.scores.score_modernTech + projectData.scores.score_scalability) / 3),
-        career: Math.round((projectData.scores.score_resume + projectData.scores.score_portfolio + projectData.scores.score_recruiter) / 3),
-        viability: Math.round((projectData.scores.score_problem + projectData.scores.score_startup + projectData.scores.score_deployment) / 3),
-        interest: Math.round((projectData.scores.score_interest + projectData.scores.score_learning) / 2),
-        ai: projectData.scores.score_aiPotential
-      };
-
-      // Determine Verdict based on framework rules + dynamic override
-      let verdict = '';
-      let tier = '';
-      
-      if (normalizedScore >= 85) {
-        verdict = 'BUILD IMMEDIATELY'; tier = 'Tier 4/5';
-      } else if (normalizedScore >= 70) {
-        verdict = 'Strong Project'; tier = 'Tier 3';
-      } else if (normalizedScore >= 55) {
-        verdict = 'Good Learning Project'; tier = 'Tier 2';
-      } else if (normalizedScore >= 40) {
-        verdict = 'Experimental Only'; tier = 'Tier 1';
-      } else {
-        verdict = 'Skip'; tier = 'Not Recommended';
-      }
-
-      // Dynamic Rule override as requested in the framework
-      // Example: If AI > 8 AND Resume > 7 AND Utility > 7 -> Recommend BUILD
-      if (projectData.scores.score_aiPotential >= 8 && 
-          projectData.scores.score_resume >= 7 && 
-          projectData.scores.score_problem >= 7 &&
-          normalizedScore < 85) {
-        verdict = 'BUILD (AI EXCEPTION)';
-      }
-
-      projectData.verdict = verdict;
-      projectData.tier = tier;
-
       try {
-        // Save to Supabase cloud (async)
+        // ── Delegate entirely to ScoringEngine ───────────────────────────
+        const result = window.ScoringEngine.evaluate(projectData.scores);
+        projectData.totalScore = result.totalScore;
+        projectData.metrics    = result.metrics;
+        projectData.verdict    = result.verdict;
+        projectData.tier       = result.tier;
+
+        // Save to Supabase cloud
         const savedId = await window.StorageAPI.saveProject(projectData);
-        // Redirect to dashboard with ID
         window.location.href = `dashboard.html?id=${savedId}`;
       } catch (err) {
         console.error('Failed to save project:', err);
@@ -255,3 +215,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
