@@ -104,6 +104,7 @@
 </style>`;
 
   const TOOLS_DATA = [
+    { href:'os.html',           label:'AI Developer OS',  desc:'50-in-1 Intelligence Hub',    icon:'ph-fill ph-cpu',          bg:'rgba(139,145,221,.15)', color:'var(--color-p6-periwinkle)' },
     { href:'architecture.html',label:'Architecture AI',   desc:'Generate system diagrams',    icon:'ph-fill ph-tree-structure',bg:'rgba(139,145,221,.1)', color:'var(--color-p6-periwinkle)' },
     { href:'business.html',    label:'Startup Canvas',    desc:'Business model generator',    icon:'ph-fill ph-chart-pie-slice',bg:'rgba(255,208,89,.1)',  color:'var(--color-p3-mustard)' },
     { href:'roadmap.html',    label:'Roadmap Generator',  desc:'12-week execution plan',      icon:'ph-fill ph-map-trifold',  bg:'rgba(0,145,185,.12)',   color:'var(--color-p4-deepteal)' },
@@ -177,11 +178,11 @@ ${CSS}
     <div class="mega-grid">
       <div class="mega-col">
         <p class="mega-section-title">Core Tools</p>
-        ${toolCards(TOOLS_DATA.slice(0,4))}
+        ${toolCards(TOOLS_DATA.slice(0,5))}
       </div>
       <div class="mega-col">
         <p class="mega-section-title">Platform</p>
-        ${toolCards(TOOLS_DATA.slice(4))}
+        ${toolCards(TOOLS_DATA.slice(5))}
       </div>
     </div>
     <div class="mega-footer">

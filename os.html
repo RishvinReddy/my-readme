@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Developer OS - Project Validator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+  <link href="./assets/css/palette.css" rel="stylesheet">
+  <style>
+    /* Premium Terminal / OS Aesthetics */
+    .os-container { background: #06060f; }
+    .os-terminal-input {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(139,145,221,0.2);
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(139,145,221,0.05);
+      border-radius: 12px;
+    }
+    .os-terminal-input:focus-within { border-color: var(--color-p6-periwinkle); box-shadow: 0 0 20px rgba(139,145,221,0.15); }
+    
+    .os-tab {
+      padding: 12px 20px; font-weight: 600; font-size: 14px;
+      color: #94a3b8; border-bottom: 2px solid transparent; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .os-tab:hover { color: #fff; }
+    .os-tab.active { color: var(--color-p6-periwinkle); border-bottom-color: var(--color-p6-periwinkle); }
+    
+    .os-card {
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px; padding: 24px; height: 100%; display: flex; flex-direction: column;
+    }
+    .os-card-header { display: flex; items-center gap-3; margin-bottom: 20px; }
+    .os-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    
+    /* Lists */
+    .os-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+    .os-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #cbd5e1; }
+    .os-list li i { margin-top: 3px; }
+    
+    /* Theme overrides for cards */
+    .theme-eng .os-card-icon { background: rgba(0,156,154,0.1); color: var(--color-p1-teal); }
+    .theme-biz .os-card-icon { background: rgba(255,208,89,0.1); color: var(--color-p3-mustard); }
+    .theme-prod .os-card-icon { background: rgba(255,105,105,0.1); color: var(--color-p3-coralred); }
+    .theme-car .os-card-icon { background: rgba(139,145,221,0.1); color: var(--color-p6-periwinkle); }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen os-container">
+
+  <!-- Glows -->
+  <div class="fixed inset-0 pointer-events-none opacity-30 z-0">
+    <div class="absolute top-0 right-1/4 w-[600px] h-[600px] bg-pal-periwinkle/20 rounded-full blur-[150px]"></div>
+    <div class="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-pal-teal/10 rounded-full blur-[150px]"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col min-h-screen">
+    <!-- Navbar injected here -->
+
+    <main class="flex-grow flex flex-col py-12 px-6">
+      <div class="w-full max-w-7xl mx-auto flex flex-col items-center">
+        
+        <!-- Header -->
+        <div class="text-center mb-10 fade-up-element visible">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pal-periwinkle/30 bg-pal-periwinkle/10 text-pal-periwinkle text-xs font-semibold uppercase tracking-widest mb-4">
+            <i class="ph-fill ph-cpu"></i> Engineering Intelligence OS
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">AI Developer <span class="grad-periwinkle-lightblue">OS</span></h1>
+          <p class="text-slate-400 max-w-2xl mx-auto text-lg">Your ultimate autonomous copilot. Describe your project idea once, and generate 50+ data points across architecture, business, sprints, and career impact.</p>
+        </div>
+
+        <!-- Master Input -->
+        <div class="w-full max-w-4xl os-terminal-input flex items-center p-2 mb-12">
+          <div class="px-4 text-pal-periwinkle font-mono font-bold">></div>
+          <input type="text" id="osIdeaInput" class="bg-transparent border-none outline-none text-white w-full py-4 px-2 font-mono" placeholder="initialize system --idea 'AI automated legal contract generator'">
+          <button id="osRunBtn" class="btn-primary py-3 px-6 whitespace-nowrap !bg-pal-periwinkle/20 border border-pal-periwinkle/50 text-pal-periwinkle hover:!bg-pal-periwinkle hover:text-dark-900 ml-2 rounded-lg">
+            <i class="ph-fill ph-lightning text-lg"></i> Run Analysis
+          </button>
+        </div>
+
+        <div id="loading" class="hidden flex-col items-center py-20 w-full">
+          <i class="ph ph-circle-notch animate-spin text-5xl text-pal-periwinkle mb-6"></i>
+          <p class="text-pal-periwinkle font-mono mb-2">Analyzing heuristic models...</p>
+          <div class="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div class="h-full bg-pal-periwinkle w-1/2 animate-pulse"></div>
+          </div>
+        </div>
+
+        <!-- Dashboard Layout -->
+        <div id="osDashboard" class="w-full hidden flex-col">
+          
+          <!-- Tabs -->
+          <div class="flex flex-wrap border-b border-white/10 mb-8 w-full">
+            <div class="os-tab active" onclick="switchTab('eng')"><i class="ph-fill ph-terminal-window mr-2"></i>Engineering</div>
+            <div class="os-tab" onclick="switchTab('biz')"><i class="ph-fill ph-chart-line-up mr-2"></i>Startup & Business</div>
+            <div class="os-tab" onclick="switchTab('prod')"><i class="ph-fill ph-calendar-check mr-2"></i>Productivity & Sprints</div>
+            <div class="os-tab" onclick="switchTab('car')"><i class="ph-fill ph-briefcase mr-2"></i>Career Impact</div>
+          </div>
+
+          <!-- TAB 1: Engineering -->
+          <div id="tab-eng" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 theme-eng">
+            <!-- Stack -->
+            <div class="os-card lg:col-span-2">
+              <div class="os-card-header">
+                <div class="os-card-icon"><i class="ph-fill ph-stack"></i></div>
+                <div><h3 class="text-white font-bold text-lg">AI Tech Stack Recommender</h3><p class="text-xs text-slate-500">Optimal architecture for scale.</p></div>
+              </div>
+              <div id="ui-stack" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+              <div class="mt-auto pt-6"><a href="architecture.html" class="text-xs text-pal-teal hover:underline flex items-center gap-1">Open Visualizer <i class="ph ph-arrow-right"></i></a></div>
+            </div>
+            
+            <!-- Security -->
+            <div class="os-card">
+              <div class="os-card-header">
+                <div class="os-card-icon !bg-rose-500/10 !text-rose-400"><i class="ph-fill ph-shield-warning"></i></div>
+                <div><h3 class="text-white font-bold text-lg">Security Auditor</h3><p class="text-xs text-slate-500">Vulnerabilities to watch for.</p></div>
+              </div>
+              <ul class="os-list" id="ui-security"></ul>
+            </div>
+
+            <!-- Cost & API -->
+            <div class="os-card">
+              <div class="os-card-header">
+                <div class="os-card-icon !bg-emerald-500/10 !text-emerald-400"><i class="ph-fill ph-currency-dollar"></i></div>
+                <div><h3 class="text-white font-bold text-lg">Infrastructure Costs</h3><p class="text-xs text-slate-500">Estimated monthly burn rate.</p></div>
+              </div>
+              <ul class="os-list" id="ui-costs"></ul>
+            </div>
+
+            <div class="os-card lg:col-span-2">
+              <div class="os-card-header">
+                <div class="os-card-icon !bg-pal-lightblue/10 !text-pal-lightblue"><i class="ph-fill ph-plugs-connected"></i></div>
+                <div><h3 class="text-white font-bold text-lg">Required API Ecosystem</h3><p class="text-xs text-slate-500">Third-party integrations.</p></div>
+              </div>
+              <div class="flex flex-wrap gap-2" id="ui-apis"></div>
+            </div>
+          </div>
+
+          <!-- TAB 2: Startup -->
+          <div id="tab-biz" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 theme-biz hidden">
+            <!-- Viability -->
+            <div class="os-card">
+              <div class="os-card-header">
+                <div class="os-card-icon"><i class="ph-fill ph-rocket-launch"></i></div>
+                <div><h3 class="text-white font-bold text-lg">Startup Viability</h3><p class="text-xs text-slate-500">Market fit prediction.</p></div>
+              </div>
+              <div class="flex items-end gap-3 mb-4">
+                <span class="text-5xl font-bold text-pal-mustard" id="ui-viability-score">0</span><span class="text-slate-400 mb-2">/100</span>
+              </div>
+              <p class="text-white font-bold text-lg mb-2" id="ui-viability-verdict"></p>
+            </div>
+
+            <!-- Monetization -->
+            <div class="os-card">
+              <div class="os-card-header">
+                <div class="os-card-icon !bg-emerald-500/10 !text-emerald-400"><i class="ph-fill ph-money"></i></div>
+                <div><h3 class="text-white font-bold text-lg">Monetization Generator</h3><p class="text-xs text-slate-500">Suggested pricing models.</p></div>
+              </div>
+              <ul class="os-list" id="ui-pricing"></ul>
+              <div class="mt-auto pt-6"><a href="business.html" class="text-xs text-pal-mustard hover:underline flex items-center gap-1">Generate Full Canvas <i class="ph ph-arrow-right"></i></a></div>
+            </div>
+
+            <!-- Pitch -->
+            <div class="os-card lg:col-span-1">
+              <div class="os-card-header">
+                <div class="os-card-icon !bg-pal-orange/10 !text-pal-orange"><i class="ph-fill ph-megaphone"></i></div>
+                <div><h3 class="text-white font-bold text-lg">One-Line Pitch</h3><p class="text-xs text-slate-500">Investor-ready summary.</p></div>
+              </div>
+              <p class="text-white font-medium text-lg leading-relaxed italic" id="ui-pitch"></p>
+            </div>
+
+            <!-- Competitors -->
+            <div class="os-card lg:col-span-3">
+              <div class="os-card-header">
+                <div class="os-card-icon !bg-rose-500/10 !text-rose-400"><i class="ph-fill ph-sword"></i></div>
+                <div><h3 class="text-white font-bold text-lg">Competitor Intelligence</h3><p class="text-xs text-slate-500">Market dynamics & threats.</p></div>
+              </div>
+              <ul class="os-list" id="ui-competitors"></ul>
+            </div>
+          </div>
+
+          <!-- TAB 3: Productivity -->
+          <div id="tab-prod" class="grid grid-cols-1 lg:grid-cols-2 gap-6 theme-prod hidden">
+            <!-- Sprint -->
+            <div class="os-card">
+              <div class="os-card-header">
+                <div class="os-card-icon"><i class="ph-fill ph-calendar-plus"></i></div>
+                <div><h3 class="text-white font-bold text-lg">AI Sprint Planner</h3><p class="text-xs text-slate-500">4-week execution schedule.</p></div>
+              </div>
+              <ul class="os-list" id="ui-sprint"></ul>
+              <div class="mt-auto pt-6"><a href="roadmap.html" class="text-xs text-pal-coralred hover:underline flex items-center gap-1">Generate 12-Week Roadmap <i class="ph ph-arrow-right"></i></a></div>
+            </div>
+
+            <!-- Roles & MVP -->
+            <div class="flex flex-col gap-6">
+              <div class="os-card">
+                <div class="os-card-header">
+                  <div class="os-card-icon !bg-pal-orange/10 !text-pal-orange"><i class="ph-fill ph-users-three"></i></div>
+                  <div><h3 class="text-white font-bold text-lg">Team Roles Required</h3><p class="text-xs text-slate-500">Ideal team composition.</p></div>
+                </div>
+                <div class="flex flex-wrap gap-2" id="ui-roles"></div>
+              </div>
+
+              <div class="os-card flex-grow">
+                <div class="os-card-header">
+                  <div class="os-card-icon !bg-emerald-500/10 !text-emerald-400"><i class="ph-fill ph-scissors"></i></div>
+                  <div><h3 class="text-white font-bold text-lg">Hackathon MVP Compression</h3><p class="text-xs text-slate-500">How to build this in 24 hours.</p></div>
+                </div>
+                <p class="text-slate-300 leading-relaxed text-sm" id="ui-mvp"></p>
+                <div class="mt-auto pt-6"><a href="hackathon.html" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">Open Hackathon Mode <i class="ph ph-arrow-right"></i></a></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: Career -->
+          <div id="tab-car" class="grid grid-cols-1 lg:grid-cols-2 gap-6 theme-car hidden">
+            <div class="os-card">
+              <div class="os-card-header">
+                <div class="os-card-icon"><i class="ph-fill ph-file-text"></i></div>
+                <div><h3 class="text-white font-bold text-lg">Resume Impact Score</h3><p class="text-xs text-slate-500">Recruiter attraction rating.</p></div>
+              </div>
+              <div class="flex items-end gap-3 mb-4">
+                <span class="text-5xl font-bold text-pal-periwinkle" id="ui-resume-score">0</span><span class="text-slate-400 mb-2">/100</span>
+              </div>
+              <div class="bg-pal-periwinkle/10 border border-pal-periwinkle/20 p-4 rounded-xl mt-4">
+                <p class="text-xs text-pal-periwinkle font-bold uppercase mb-1">Recruiter Simulation</p>
+                <p class="text-white text-sm italic">"<span id="ui-recruiter"></span>"</p>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+              <div class="os-card">
+                <div class="os-card-header">
+                  <div class="os-card-icon !bg-rose-500/10 !text-rose-400"><i class="ph-fill ph-target"></i></div>
+                  <div><h3 class="text-white font-bold text-lg">Skill Gap Analyzer</h3><p class="text-xs text-slate-500">What you need to learn to build this.</p></div>
+                </div>
+                <ul class="os-list" id="ui-skills"></ul>
+              </div>
+              <div class="os-card flex-grow">
+                <div class="os-card-header">
+                  <div class="os-card-icon !bg-pal-lightblue/10 !text-pal-lightblue"><i class="ph-fill ph-tag"></i></div>
+                  <div><h3 class="text-white font-bold text-lg">Portfolio Tags</h3><p class="text-xs text-slate-500">Keywords to use on your resume.</p></div>
+                </div>
+                <div class="flex flex-wrap gap-2" id="ui-tags"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/nav.js" defer></script>
+  <script src="./assets/js/os-engine.js"></script>
+  <script>
+    // Tab Logic
+    function switchTab(id) {
+      document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      ['eng','biz','prod','car'].forEach(t => document.getElementById(`tab-${t}`).classList.add('hidden'));
+      document.getElementById(`tab-${id}`).classList.remove('hidden');
+    }
+
+    // Engine UI Mapper
+    document.getElementById('osRunBtn').addEventListener('click', () => {
+      const idea = document.getElementById('osIdeaInput').value.trim();
+      if (!idea) return window.showToast('Input required to initialize system.', 'error');
+
+      document.getElementById('osDashboard').classList.add('hidden');
+      document.getElementById('loading').classList.replace('hidden', 'flex');
+
+      setTimeout(() => {
+        document.getElementById('loading').classList.replace('flex', 'hidden');
+        document.getElementById('osDashboard').classList.replace('hidden', 'flex');
+        
+        const data = window.OSEngine.analyze(idea);
+        
+        // --- Engineering ---
+        document.getElementById('ui-stack').innerHTML = data.engineering.stack.map(s => `
+          <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex flex-col">
+            <span class="text-[10px] uppercase text-pal-teal font-bold tracking-wider mb-1">${s.role}</span>
+            <span class="text-white text-sm font-medium">${s.tool}</span>
+          </div>
+        `).join('');
+        
+        document.getElementById('ui-security').innerHTML = data.engineering.security.map(s => `<li><i class="ph-fill ph-warning-circle text-rose-400"></i> ${s}</li>`).join('');
+        document.getElementById('ui-costs').innerHTML = Object.entries(data.engineering.costs).map(([k,v]) => `<li><i class="ph-fill ph-coins text-emerald-400"></i> <span class="capitalize text-white w-20 inline-block">${k}:</span> ${v}</li>`).join('');
+        document.getElementById('ui-apis').innerHTML = data.engineering.apis.map(a => `<span class="px-3 py-1 bg-pal-lightblue/10 text-pal-lightblue text-xs rounded-full border border-pal-lightblue/20">${a}</span>`).join('');
+
+        // --- Startup ---
+        document.getElementById('ui-viability-score').textContent = data.startup.viability.score;
+        document.getElementById('ui-viability-verdict').textContent = data.startup.viability.verdict;
+        document.getElementById('ui-pricing').innerHTML = data.startup.pricing.map(p => `<li><i class="ph-fill ph-check-circle text-emerald-400"></i> ${p}</li>`).join('');
+        document.getElementById('ui-pitch').textContent = data.startup.pitch;
+        document.getElementById('ui-competitors').innerHTML = data.startup.competitorInsights.map(c => `<li><i class="ph-fill ph-info text-pal-orange"></i> ${c}</li>`).join('');
+
+        // --- Productivity ---
+        document.getElementById('ui-sprint').innerHTML = data.productivity.sprint.map(s => `<li><i class="ph-fill ph-flag-checkered text-pal-coralred"></i> ${s}</li>`).join('');
+        document.getElementById('ui-roles').innerHTML = data.productivity.roles.map(r => `<span class="px-3 py-1 bg-pal-orange/10 text-pal-orange text-xs rounded-full border border-pal-orange/20">${r}</span>`).join('');
+        document.getElementById('ui-mvp').textContent = data.productivity.mvp;
+
+        // --- Career ---
+        document.getElementById('ui-resume-score').textContent = data.career.resumeScore;
+        document.getElementById('ui-recruiter').textContent = data.career.recruiterReaction;
+        document.getElementById('ui-skills').innerHTML = data.productivity.skillGaps.map(s => `<li><i class="ph-fill ph-target text-rose-400"></i> ${s}</li>`).join('');
+        document.getElementById('ui-tags').innerHTML = data.career.tags.map(t => `<span class="px-3 py-1 bg-pal-lightblue/10 text-pal-lightblue text-xs rounded-full border border-pal-lightblue/20">${t}</span>`).join('');
+
+      }, 1500);
+    });
+
+    document.getElementById('osIdeaInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('osRunBtn').click();
+    });
+  </script>
+</body>
+</html>
