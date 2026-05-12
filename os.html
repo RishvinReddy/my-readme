@@ -11,46 +11,31 @@
   <link href="./assets/css/output.css" rel="stylesheet">
   <link href="./assets/css/palette.css" rel="stylesheet">
   <style>
-    /* Premium Terminal / OS Aesthetics */
     .os-container { background: #06060f; }
-    .os-terminal-input {
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(139,145,221,0.2);
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(139,145,221,0.05);
-      border-radius: 12px;
-    }
+    .os-terminal-input { background: rgba(0,0,0,0.5); border: 1px solid rgba(139,145,221,0.2); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(139,145,221,0.05); border-radius: 12px; }
     .os-terminal-input:focus-within { border-color: var(--color-p6-periwinkle); box-shadow: 0 0 20px rgba(139,145,221,0.15); }
     
-    .os-tab {
-      padding: 12px 20px; font-weight: 600; font-size: 14px;
-      color: #94a3b8; border-bottom: 2px solid transparent; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .os-tab:hover { color: #fff; }
-    .os-tab.active { color: var(--color-p6-periwinkle); border-bottom-color: var(--color-p6-periwinkle); }
+    .os-tab-container { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+    .os-tab { padding: 8px 16px; font-weight: 600; font-size: 13px; color: #94a3b8; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+    .os-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .os-tab.active { color: #fff; background: rgba(139,145,221,0.1); border-color: rgba(139,145,221,0.2); }
     
-    .os-card {
-      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 16px; padding: 24px; height: 100%; display: flex; flex-direction: column;
-    }
-    .os-card-header { display: flex; items-center gap-3; margin-bottom: 20px; }
-    .os-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .os-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; height: 100%; display: flex; flex-direction: column; }
+    .os-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .os-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(255,255,255,0.05); color: #94a3b8; }
+    .os-card-title { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; font-size: 15px; }
+    .os-card-desc { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-top: 2px; }
     
-    /* Lists */
-    .os-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-    .os-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #cbd5e1; }
-    .os-list li i { margin-top: 3px; }
-    
-    /* Theme overrides for cards */
-    .theme-eng .os-card-icon { background: rgba(0,156,154,0.1); color: var(--color-p1-teal); }
-    .theme-biz .os-card-icon { background: rgba(255,208,89,0.1); color: var(--color-p3-mustard); }
-    .theme-prod .os-card-icon { background: rgba(255,105,105,0.1); color: var(--color-p3-coralred); }
-    .theme-car .os-card-icon { background: rgba(139,145,221,0.1); color: var(--color-p6-periwinkle); }
+    .data-text { color: #cbd5e1; font-size: 14px; line-height: 1.6; }
+    .data-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+    .data-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #cbd5e1; }
+    .data-list li i { margin-top: 3px; color: var(--color-p6-periwinkle); }
+    .data-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .data-tag { padding: 4px 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; font-size: 12px; color: #cbd5e1; }
   </style>
 </head>
 <body class="flex flex-col min-h-screen os-container">
 
-  <!-- Glows -->
   <div class="fixed inset-0 pointer-events-none opacity-30 z-0">
     <div class="absolute top-0 right-1/4 w-[600px] h-[600px] bg-pal-periwinkle/20 rounded-full blur-[150px]"></div>
     <div class="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-pal-teal/10 rounded-full blur-[150px]"></div>
@@ -62,19 +47,17 @@
     <main class="flex-grow flex flex-col py-12 px-6">
       <div class="w-full max-w-7xl mx-auto flex flex-col items-center">
         
-        <!-- Header -->
         <div class="text-center mb-10 fade-up-element visible">
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pal-periwinkle/30 bg-pal-periwinkle/10 text-pal-periwinkle text-xs font-semibold uppercase tracking-widest mb-4">
-            <i class="ph-fill ph-cpu"></i> Engineering Intelligence OS
+            <i class="ph-fill ph-cpu"></i> Startup Intelligence OS
           </div>
           <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">AI Developer <span class="grad-periwinkle-lightblue">OS</span></h1>
-          <p class="text-slate-400 max-w-2xl mx-auto text-lg">Your ultimate autonomous copilot. Describe your project idea once, and generate 50+ data points across architecture, business, sprints, and career impact.</p>
+          <p class="text-slate-400 max-w-2xl mx-auto text-lg">The massive 50-feature intelligence hub. Describe your project to generate a complete ecosystem analysis.</p>
         </div>
 
-        <!-- Master Input -->
         <div class="w-full max-w-4xl os-terminal-input flex items-center p-2 mb-12">
           <div class="px-4 text-pal-periwinkle font-mono font-bold">></div>
-          <input type="text" id="osIdeaInput" class="bg-transparent border-none outline-none text-white w-full py-4 px-2 font-mono" placeholder="initialize system --idea 'AI automated legal contract generator'">
+          <input type="text" id="osIdeaInput" class="bg-transparent border-none outline-none text-white w-full py-4 px-2 font-mono" placeholder="initialize system --idea 'AI legal contract generator'">
           <button id="osRunBtn" class="btn-primary py-3 px-6 whitespace-nowrap !bg-pal-periwinkle/20 border border-pal-periwinkle/50 text-pal-periwinkle hover:!bg-pal-periwinkle hover:text-dark-900 ml-2 rounded-lg">
             <i class="ph-fill ph-lightning text-lg"></i> Run Analysis
           </button>
@@ -82,7 +65,7 @@
 
         <div id="loading" class="hidden flex-col items-center py-20 w-full">
           <i class="ph ph-circle-notch animate-spin text-5xl text-pal-periwinkle mb-6"></i>
-          <p class="text-pal-periwinkle font-mono mb-2">Analyzing heuristic models...</p>
+          <p class="text-pal-periwinkle font-mono mb-2">Analyzing 50 heuristic models...</p>
           <div class="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
             <div class="h-full bg-pal-periwinkle w-1/2 animate-pulse"></div>
           </div>
@@ -91,161 +74,107 @@
         <!-- Dashboard Layout -->
         <div id="osDashboard" class="w-full hidden flex-col">
           
-          <!-- Tabs -->
-          <div class="flex flex-wrap border-b border-white/10 mb-8 w-full">
-            <div class="os-tab active" onclick="switchTab('eng')"><i class="ph-fill ph-terminal-window mr-2"></i>Engineering</div>
-            <div class="os-tab" onclick="switchTab('biz')"><i class="ph-fill ph-chart-line-up mr-2"></i>Startup & Business</div>
-            <div class="os-tab" onclick="switchTab('prod')"><i class="ph-fill ph-calendar-check mr-2"></i>Productivity & Sprints</div>
-            <div class="os-tab" onclick="switchTab('car')"><i class="ph-fill ph-briefcase mr-2"></i>Career Impact</div>
+          <div class="os-tab-container">
+            <div class="os-tab active" onclick="switchTab('cat1')">1. Engineering</div>
+            <div class="os-tab" onclick="switchTab('cat2')">2. Productivity</div>
+            <div class="os-tab" onclick="switchTab('cat3')">3. Startup</div>
+            <div class="os-tab" onclick="switchTab('cat4')">4. GitHub</div>
+            <div class="os-tab" onclick="switchTab('cat5')">5. Code Eco</div>
+            <div class="os-tab" onclick="switchTab('cat6')">6. Hackathon</div>
+            <div class="os-tab" onclick="switchTab('cat7')">7. Collab</div>
+            <div class="os-tab" onclick="switchTab('cat8')">8. Adv AI</div>
+            <div class="os-tab" onclick="switchTab('cat9')">9. Career</div>
+            <div class="os-tab" onclick="switchTab('cat10')">10. Future</div>
           </div>
 
-          <!-- TAB 1: Engineering -->
-          <div id="tab-eng" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 theme-eng">
-            <!-- Stack -->
-            <div class="os-card lg:col-span-2">
-              <div class="os-card-header">
-                <div class="os-card-icon"><i class="ph-fill ph-stack"></i></div>
-                <div><h3 class="text-white font-bold text-lg">AI Tech Stack Recommender</h3><p class="text-xs text-slate-500">Optimal architecture for scale.</p></div>
-              </div>
-              <div id="ui-stack" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-              <div class="mt-auto pt-6"><a href="architecture.html" class="text-xs text-pal-teal hover:underline flex items-center gap-1">Open Visualizer <i class="ph ph-arrow-right"></i></a></div>
-            </div>
-            
-            <!-- Security -->
-            <div class="os-card">
-              <div class="os-card-header">
-                <div class="os-card-icon !bg-rose-500/10 !text-rose-400"><i class="ph-fill ph-shield-warning"></i></div>
-                <div><h3 class="text-white font-bold text-lg">Security Auditor</h3><p class="text-xs text-slate-500">Vulnerabilities to watch for.</p></div>
-              </div>
-              <ul class="os-list" id="ui-security"></ul>
-            </div>
-
-            <!-- Cost & API -->
-            <div class="os-card">
-              <div class="os-card-header">
-                <div class="os-card-icon !bg-emerald-500/10 !text-emerald-400"><i class="ph-fill ph-currency-dollar"></i></div>
-                <div><h3 class="text-white font-bold text-lg">Infrastructure Costs</h3><p class="text-xs text-slate-500">Estimated monthly burn rate.</p></div>
-              </div>
-              <ul class="os-list" id="ui-costs"></ul>
-            </div>
-
-            <div class="os-card lg:col-span-2">
-              <div class="os-card-header">
-                <div class="os-card-icon !bg-pal-lightblue/10 !text-pal-lightblue"><i class="ph-fill ph-plugs-connected"></i></div>
-                <div><h3 class="text-white font-bold text-lg">Required API Ecosystem</h3><p class="text-xs text-slate-500">Third-party integrations.</p></div>
-              </div>
-              <div class="flex flex-wrap gap-2" id="ui-apis"></div>
-            </div>
+          <!-- CAT 1: Engineering -->
+          <div id="tab-cat1" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="os-card lg:col-span-2"><div class="os-card-header"><div class="os-card-icon text-pal-teal bg-pal-teal/10"><i class="ph-fill ph-tree-structure"></i></div><div><div class="os-card-title">1. System Architect</div><div class="os-card-desc">Architecture Flow</div></div></div><p class="data-text font-mono text-sm" id="c1-1"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-stack"></i></div><div><div class="os-card-title">2. Tech Stack</div><div class="os-card-desc">Recommended Stack</div></div></div><div class="data-tags" id="c1-2"></div></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-rose-400 bg-rose-500/10"><i class="ph-fill ph-shield-warning"></i></div><div><div class="os-card-title">3. Security Auditor</div><div class="os-card-desc">Vulnerabilities</div></div></div><ul class="data-list" id="c1-3"></ul></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-emerald-400 bg-emerald-500/10"><i class="ph-fill ph-currency-dollar"></i></div><div><div class="os-card-title">4. Cost Estimator</div><div class="os-card-desc">Monthly Burn</div></div></div><p class="data-text font-bold text-xl text-emerald-400" id="c1-4"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-lightblue bg-pal-lightblue/10"><i class="ph-fill ph-cloud-arrow-up"></i></div><div><div class="os-card-title">5. Deployment Planner</div><div class="os-card-desc">Hosting Strategy</div></div></div><p class="data-text" id="c1-5"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-plugs-connected"></i></div><div><div class="os-card-title">6. API Recommender</div><div class="os-card-desc">3rd Party Integrations</div></div></div><div class="data-tags" id="c1-6"></div></div>
           </div>
 
-          <!-- TAB 2: Startup -->
-          <div id="tab-biz" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 theme-biz hidden">
-            <!-- Viability -->
-            <div class="os-card">
-              <div class="os-card-header">
-                <div class="os-card-icon"><i class="ph-fill ph-rocket-launch"></i></div>
-                <div><h3 class="text-white font-bold text-lg">Startup Viability</h3><p class="text-xs text-slate-500">Market fit prediction.</p></div>
-              </div>
-              <div class="flex items-end gap-3 mb-4">
-                <span class="text-5xl font-bold text-pal-mustard" id="ui-viability-score">0</span><span class="text-slate-400 mb-2">/100</span>
-              </div>
-              <p class="text-white font-bold text-lg mb-2" id="ui-viability-verdict"></p>
-            </div>
-
-            <!-- Monetization -->
-            <div class="os-card">
-              <div class="os-card-header">
-                <div class="os-card-icon !bg-emerald-500/10 !text-emerald-400"><i class="ph-fill ph-money"></i></div>
-                <div><h3 class="text-white font-bold text-lg">Monetization Generator</h3><p class="text-xs text-slate-500">Suggested pricing models.</p></div>
-              </div>
-              <ul class="os-list" id="ui-pricing"></ul>
-              <div class="mt-auto pt-6"><a href="business.html" class="text-xs text-pal-mustard hover:underline flex items-center gap-1">Generate Full Canvas <i class="ph ph-arrow-right"></i></a></div>
-            </div>
-
-            <!-- Pitch -->
-            <div class="os-card lg:col-span-1">
-              <div class="os-card-header">
-                <div class="os-card-icon !bg-pal-orange/10 !text-pal-orange"><i class="ph-fill ph-megaphone"></i></div>
-                <div><h3 class="text-white font-bold text-lg">One-Line Pitch</h3><p class="text-xs text-slate-500">Investor-ready summary.</p></div>
-              </div>
-              <p class="text-white font-medium text-lg leading-relaxed italic" id="ui-pitch"></p>
-            </div>
-
-            <!-- Competitors -->
-            <div class="os-card lg:col-span-3">
-              <div class="os-card-header">
-                <div class="os-card-icon !bg-rose-500/10 !text-rose-400"><i class="ph-fill ph-sword"></i></div>
-                <div><h3 class="text-white font-bold text-lg">Competitor Intelligence</h3><p class="text-xs text-slate-500">Market dynamics & threats.</p></div>
-              </div>
-              <ul class="os-list" id="ui-competitors"></ul>
-            </div>
+          <!-- CAT 2: Productivity -->
+          <div id="tab-cat2" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <div class="os-card lg:col-span-2"><div class="os-card-header"><div class="os-card-icon text-pal-orange bg-pal-orange/10"><i class="ph-fill ph-calendar-plus"></i></div><div><div class="os-card-title">7. Sprint Planner</div><div class="os-card-desc">Execution Milestones</div></div></div><ul class="data-list" id="c2-7"></ul></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-books"></i></div><div><div class="os-card-title">8. Learning Path</div><div class="os-card-desc">What to study</div></div></div><ul class="data-list" id="c2-8"></ul></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-rose-400 bg-rose-500/10"><i class="ph-fill ph-target"></i></div><div><div class="os-card-title">9. Skill Gap Analyzer</div><div class="os-card-desc">Missing skills</div></div></div><ul class="data-list" id="c2-9"></ul></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-users-three"></i></div><div><div class="os-card-title">10. Team Roles</div><div class="os-card-desc">Required team structure</div></div></div><div class="data-tags" id="c2-10"></div></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-periwinkle bg-pal-periwinkle/10"><i class="ph-fill ph-clock"></i></div><div><div class="os-card-title">11. Time Estimator</div><div class="os-card-desc">MVP Timeline</div></div></div><p class="data-text font-bold text-xl text-white" id="c2-11"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-rose-500 bg-rose-500/10"><i class="ph-fill ph-bug"></i></div><div><div class="os-card-title">12. Bug Prediction</div><div class="os-card-desc">Likely bottlenecks</div></div></div><p class="data-text" id="c2-12"></p></div>
           </div>
 
-          <!-- TAB 3: Productivity -->
-          <div id="tab-prod" class="grid grid-cols-1 lg:grid-cols-2 gap-6 theme-prod hidden">
-            <!-- Sprint -->
-            <div class="os-card">
-              <div class="os-card-header">
-                <div class="os-card-icon"><i class="ph-fill ph-calendar-plus"></i></div>
-                <div><h3 class="text-white font-bold text-lg">AI Sprint Planner</h3><p class="text-xs text-slate-500">4-week execution schedule.</p></div>
-              </div>
-              <ul class="os-list" id="ui-sprint"></ul>
-              <div class="mt-auto pt-6"><a href="roadmap.html" class="text-xs text-pal-coralred hover:underline flex items-center gap-1">Generate 12-Week Roadmap <i class="ph ph-arrow-right"></i></a></div>
-            </div>
-
-            <!-- Roles & MVP -->
-            <div class="flex flex-col gap-6">
-              <div class="os-card">
-                <div class="os-card-header">
-                  <div class="os-card-icon !bg-pal-orange/10 !text-pal-orange"><i class="ph-fill ph-users-three"></i></div>
-                  <div><h3 class="text-white font-bold text-lg">Team Roles Required</h3><p class="text-xs text-slate-500">Ideal team composition.</p></div>
-                </div>
-                <div class="flex flex-wrap gap-2" id="ui-roles"></div>
-              </div>
-
-              <div class="os-card flex-grow">
-                <div class="os-card-header">
-                  <div class="os-card-icon !bg-emerald-500/10 !text-emerald-400"><i class="ph-fill ph-scissors"></i></div>
-                  <div><h3 class="text-white font-bold text-lg">Hackathon MVP Compression</h3><p class="text-xs text-slate-500">How to build this in 24 hours.</p></div>
-                </div>
-                <p class="text-slate-300 leading-relaxed text-sm" id="ui-mvp"></p>
-                <div class="mt-auto pt-6"><a href="hackathon.html" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">Open Hackathon Mode <i class="ph ph-arrow-right"></i></a></div>
-              </div>
-            </div>
+          <!-- CAT 3: Startup -->
+          <div id="tab-cat3" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-mustard bg-pal-mustard/10"><i class="ph-fill ph-rocket-launch"></i></div><div><div class="os-card-title">13. Viability Engine</div><div class="os-card-desc">Market fit prediction</div></div></div><p class="data-text font-bold text-xl text-pal-mustard" id="c3-13"></p></div>
+            <div class="os-card lg:col-span-2"><div class="os-card-header"><div class="os-card-icon text-rose-400 bg-rose-500/10"><i class="ph-fill ph-sword"></i></div><div><div class="os-card-title">14. Competitor Intel</div><div class="os-card-desc">Market threats</div></div></div><ul class="data-list" id="c3-14"></ul></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-emerald-400 bg-emerald-500/10"><i class="ph-fill ph-money"></i></div><div><div class="os-card-title">15. Monetization</div><div class="os-card-desc">Pricing models</div></div></div><ul class="data-list" id="c3-15"></ul></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-trend-up"></i></div><div><div class="os-card-title">16. Investor Readiness</div><div class="os-card-desc">Scalability</div></div></div><p class="data-text" id="c3-16"></p></div>
+            <div class="os-card lg:col-span-2"><div class="os-card-header"><div class="os-card-icon text-pal-orange bg-pal-orange/10"><i class="ph-fill ph-presentation-chart"></i></div><div><div class="os-card-title">17. Pitch Deck Gen</div><div class="os-card-desc">One-Line Pitch</div></div></div><p class="data-text italic" id="c3-17"></p></div>
           </div>
 
-          <!-- TAB 4: Career -->
-          <div id="tab-car" class="grid grid-cols-1 lg:grid-cols-2 gap-6 theme-car hidden">
-            <div class="os-card">
-              <div class="os-card-header">
-                <div class="os-card-icon"><i class="ph-fill ph-file-text"></i></div>
-                <div><h3 class="text-white font-bold text-lg">Resume Impact Score</h3><p class="text-xs text-slate-500">Recruiter attraction rating.</p></div>
-              </div>
-              <div class="flex items-end gap-3 mb-4">
-                <span class="text-5xl font-bold text-pal-periwinkle" id="ui-resume-score">0</span><span class="text-slate-400 mb-2">/100</span>
-              </div>
-              <div class="bg-pal-periwinkle/10 border border-pal-periwinkle/20 p-4 rounded-xl mt-4">
-                <p class="text-xs text-pal-periwinkle font-bold uppercase mb-1">Recruiter Simulation</p>
-                <p class="text-white text-sm italic">"<span id="ui-recruiter"></span>"</p>
-              </div>
-            </div>
+          <!-- CAT 4: GitHub -->
+          <div id="tab-cat4" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-github-logo"></i></div><div><div class="os-card-title">18. Repo Intelligence</div><div class="os-card-desc">Folder structure</div></div></div><p class="data-text font-mono text-sm" id="c4-18"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-lightblue bg-pal-lightblue/10"><i class="ph-fill ph-file-text"></i></div><div><div class="os-card-title">19. README Quality</div><div class="os-card-desc">Documentation checks</div></div></div><p class="data-text" id="c4-19"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-code"></i></div><div><div class="os-card-title">20. Code Complexity</div><div class="os-card-desc">Technical debt prediction</div></div></div><p class="data-text" id="c4-20"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-periwinkle bg-pal-periwinkle/10"><i class="ph-fill ph-users"></i></div><div><div class="os-card-title">21. Open Source Potential</div><div class="os-card-desc">Community attraction</div></div></div><p class="data-text" id="c4-21"></p></div>
+            <div class="os-card lg:col-span-2"><div class="os-card-header"><div class="os-card-icon text-emerald-400 bg-emerald-500/10"><i class="ph-fill ph-check-circle"></i></div><div><div class="os-card-title">22. Architecture Quality</div><div class="os-card-desc">Modularity score</div></div></div><p class="data-text font-bold" id="c4-22"></p></div>
+          </div>
 
-            <div class="flex flex-col gap-6">
-              <div class="os-card">
-                <div class="os-card-header">
-                  <div class="os-card-icon !bg-rose-500/10 !text-rose-400"><i class="ph-fill ph-target"></i></div>
-                  <div><h3 class="text-white font-bold text-lg">Skill Gap Analyzer</h3><p class="text-xs text-slate-500">What you need to learn to build this.</p></div>
-                </div>
-                <ul class="os-list" id="ui-skills"></ul>
-              </div>
-              <div class="os-card flex-grow">
-                <div class="os-card-header">
-                  <div class="os-card-icon !bg-pal-lightblue/10 !text-pal-lightblue"><i class="ph-fill ph-tag"></i></div>
-                  <div><h3 class="text-white font-bold text-lg">Portfolio Tags</h3><p class="text-xs text-slate-500">Keywords to use on your resume.</p></div>
-                </div>
-                <div class="flex flex-wrap gap-2" id="ui-tags"></div>
-              </div>
-            </div>
+          <!-- CAT 5: Code Eco -->
+          <div id="tab-cat5" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-file-doc"></i></div><div><div class="os-card-title">23. PRD Generator</div><div class="os-card-desc">Product Requirements</div></div></div><p class="data-text text-sm" id="c5-23"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-gear"></i></div><div><div class="os-card-title">24. TRD Generator</div><div class="os-card-desc">Tech Requirements</div></div></div><p class="data-text text-sm" id="c5-24"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-teal bg-pal-teal/10"><i class="ph-fill ph-database"></i></div><div><div class="os-card-title">25. DB Schema Gen</div><div class="os-card-desc">Tables & Relations</div></div></div><p class="data-text font-mono text-xs" id="c5-25"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-orange bg-pal-orange/10"><i class="ph-fill ph-arrows-left-right"></i></div><div><div class="os-card-title">26. API Route Gen</div><div class="os-card-desc">Endpoints</div></div></div><p class="data-text font-mono text-xs" id="c5-26"></p></div>
+            <div class="os-card lg:col-span-2"><div class="os-card-header"><div class="os-card-icon text-pal-periwinkle bg-pal-periwinkle/10"><i class="ph-fill ph-chat-centered-text"></i></div><div><div class="os-card-title">27. Prompt Generator</div><div class="os-card-desc">LLM System Prompts</div></div></div><p class="data-text font-mono text-xs italic" id="c5-27"></p></div>
+            <div class="os-card lg:col-span-3"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-book-open"></i></div><div><div class="os-card-title">28. Docs Generator</div><div class="os-card-desc">Setup & Deployment docs</div></div></div><p class="data-text" id="c5-28"></p></div>
+          </div>
+
+          <!-- CAT 6: Hackathon -->
+          <div id="tab-cat6" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-emerald-400 bg-emerald-500/10"><i class="ph-fill ph-medal"></i></div><div><div class="os-card-title">29. Hackathon Success</div><div class="os-card-desc">Judging Potential</div></div></div><p class="data-text font-bold text-xl text-emerald-400" id="c6-29"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-rose-400 bg-rose-500/10"><i class="ph-fill ph-scissors"></i></div><div><div class="os-card-title">30. MVP Compression</div><div class="os-card-desc">Reduce 6mo to 24hr</div></div></div><p class="data-text" id="c6-30"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-periwinkle bg-pal-periwinkle/10"><i class="ph-fill ph-users-three"></i></div><div><div class="os-card-title">31. Team Optimizer</div><div class="os-card-desc">Ideal Team Size</div></div></div><p class="data-text" id="c6-31"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-mustard bg-pal-mustard/10"><i class="ph-fill ph-projector-screen"></i></div><div><div class="os-card-title">32. Demo Day Planner</div><div class="os-card-desc">Presentation flow</div></div></div><p class="data-text" id="c6-32"></p></div>
+          </div>
+
+          <!-- CAT 7: Collab -->
+          <div id="tab-cat7" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-briefcase"></i></div><div><div class="os-card-title">33. Shared Workspaces</div><div class="os-card-desc">Live collab tools</div></div></div><p class="data-text" id="c7-33"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-kanban"></i></div><div><div class="os-card-title">34. Project Boards</div><div class="os-card-desc">Issue tracking</div></div></div><p class="data-text" id="c7-34"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-video-camera"></i></div><div><div class="os-card-title">35. Meeting Summarizer</div><div class="os-card-desc">Standup structure</div></div></div><p class="data-text" id="c7-35"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-emerald-400 bg-emerald-500/10"><i class="ph-fill ph-check-square"></i></div><div><div class="os-card-title">36. Code Reviewer</div><div class="os-card-desc">Review guidelines</div></div></div><p class="data-text" id="c7-36"></p></div>
+          </div>
+
+          <!-- CAT 8: Advanced AI -->
+          <div id="tab-cat8" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-periwinkle bg-pal-periwinkle/10"><i class="ph-fill ph-brain"></i></div><div><div class="os-card-title">37. Autonomous Mentor</div><div class="os-card-desc">CTO Advice</div></div></div><p class="data-text italic text-pal-periwinkle" id="c8-37"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-orange bg-pal-orange/10"><i class="ph-fill ph-chart-line-up"></i></div><div><div class="os-card-title">38. Project Simulator</div><div class="os-card-desc">Scaling predictions</div></div></div><p class="data-text" id="c8-38"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-rose-400 bg-rose-500/10"><i class="ph-fill ph-warning"></i></div><div><div class="os-card-title">39. Risk Forecasting</div><div class="os-card-desc">Failure risks</div></div></div><p class="data-text" id="c8-39"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-teal bg-pal-teal/10"><i class="ph-fill ph-arrows-merge"></i></div><div><div class="os-card-title">40. Evolution Planner</div><div class="os-card-desc">V1 -> V3 Roadmap</div></div></div><p class="data-text" id="c8-40"></p></div>
+          </div>
+
+          <!-- CAT 9: Career -->
+          <div id="tab-cat9" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-periwinkle bg-pal-periwinkle/10"><i class="ph-fill ph-file-text"></i></div><div><div class="os-card-title">41. Resume Impact</div><div class="os-card-desc">Recruiter attraction score</div></div></div><p class="data-text font-bold text-2xl text-white" id="c9-41"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-trophy"></i></div><div><div class="os-card-title">42. Portfolio Ranking</div><div class="os-card-desc">Compared to industry</div></div></div><p class="data-text" id="c9-42"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-compass"></i></div><div><div class="os-card-title">43. Career Alignment</div><div class="os-card-desc">Recommended jobs</div></div></div><p class="data-text" id="c9-43"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-mustard bg-pal-mustard/10"><i class="ph-fill ph-user-focus"></i></div><div><div class="os-card-title">44. Recruiter Sim</div><div class="os-card-desc">Recruiter reaction</div></div></div><p class="data-text italic" id="c9-44"></p></div>
+          </div>
+
+          <!-- CAT 10: Future -->
+          <div id="tab-cat10" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-robot"></i></div><div><div class="os-card-title">45. Agent Marketplace</div><div class="os-card-desc">Automation potential</div></div></div><p class="data-text" id="c10-45"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-fire"></i></div><div><div class="os-card-title">46. Discovery Feed</div><div class="os-card-desc">Trending potential</div></div></div><p class="data-text" id="c10-46"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-plant"></i></div><div><div class="os-card-title">47. Startup Incubator</div><div class="os-card-desc">Validation steps</div></div></div><p class="data-text" id="c10-47"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-emerald-400 bg-emerald-500/10"><i class="ph-fill ph-star"></i></div><div><div class="os-card-title">48. Reputation System</div><div class="os-card-desc">Gamified score</div></div></div><p class="data-text font-bold text-emerald-400" id="c10-48"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon"><i class="ph-fill ph-flask"></i></div><div><div class="os-card-title">49. Research Assistant</div><div class="os-card-desc">Innovation ideas</div></div></div><p class="data-text" id="c10-49"></p></div>
+            <div class="os-card"><div class="os-card-header"><div class="os-card-icon text-pal-periwinkle bg-pal-periwinkle/10"><i class="ph-fill ph-cpu"></i></div><div><div class="os-card-title">50. Eng. Copilot</div><div class="os-card-desc">Ultimate Mentor</div></div></div><p class="data-text font-bold text-pal-periwinkle" id="c10-50"></p></div>
           </div>
 
         </div>
@@ -258,15 +187,13 @@
   <script src="./assets/js/nav.js" defer></script>
   <script src="./assets/js/os-engine.js"></script>
   <script>
-    // Tab Logic
     function switchTab(id) {
       document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
       event.currentTarget.classList.add('active');
-      ['eng','biz','prod','car'].forEach(t => document.getElementById(`tab-${t}`).classList.add('hidden'));
+      ['cat1','cat2','cat3','cat4','cat5','cat6','cat7','cat8','cat9','cat10'].forEach(t => document.getElementById(`tab-${t}`).classList.add('hidden'));
       document.getElementById(`tab-${id}`).classList.remove('hidden');
     }
 
-    // Engine UI Mapper
     document.getElementById('osRunBtn').addEventListener('click', () => {
       const idea = document.getElementById('osIdeaInput').value.trim();
       if (!idea) return window.showToast('Input required to initialize system.', 'error');
@@ -278,37 +205,77 @@
         document.getElementById('loading').classList.replace('flex', 'hidden');
         document.getElementById('osDashboard').classList.replace('hidden', 'flex');
         
-        const data = window.OSEngine.analyze(idea);
+        const d = window.OSEngine.analyze(idea);
         
-        // --- Engineering ---
-        document.getElementById('ui-stack').innerHTML = data.engineering.stack.map(s => `
-          <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex flex-col">
-            <span class="text-[10px] uppercase text-pal-teal font-bold tracking-wider mb-1">${s.role}</span>
-            <span class="text-white text-sm font-medium">${s.tool}</span>
-          </div>
-        `).join('');
-        
-        document.getElementById('ui-security').innerHTML = data.engineering.security.map(s => `<li><i class="ph-fill ph-warning-circle text-rose-400"></i> ${s}</li>`).join('');
-        document.getElementById('ui-costs').innerHTML = Object.entries(data.engineering.costs).map(([k,v]) => `<li><i class="ph-fill ph-coins text-emerald-400"></i> <span class="capitalize text-white w-20 inline-block">${k}:</span> ${v}</li>`).join('');
-        document.getElementById('ui-apis').innerHTML = data.engineering.apis.map(a => `<span class="px-3 py-1 bg-pal-lightblue/10 text-pal-lightblue text-xs rounded-full border border-pal-lightblue/20">${a}</span>`).join('');
+        // Cat 1
+        document.getElementById('c1-1').textContent = d.cat1_eng.f1_architect;
+        document.getElementById('c1-2').innerHTML = d.cat1_eng.f2_stack.map(s => `<span class="data-tag">${s}</span>`).join('');
+        document.getElementById('c1-3').innerHTML = d.cat1_eng.f3_security.map(s => `<li><i class="ph-fill ph-warning-circle"></i> ${s}</li>`).join('');
+        document.getElementById('c1-4').textContent = d.cat1_eng.f4_cost;
+        document.getElementById('c1-5').textContent = d.cat1_eng.f5_deploy;
+        document.getElementById('c1-6').innerHTML = d.cat1_eng.f6_api.map(s => `<span class="data-tag">${s}</span>`).join('');
 
-        // --- Startup ---
-        document.getElementById('ui-viability-score').textContent = data.startup.viability.score;
-        document.getElementById('ui-viability-verdict').textContent = data.startup.viability.verdict;
-        document.getElementById('ui-pricing').innerHTML = data.startup.pricing.map(p => `<li><i class="ph-fill ph-check-circle text-emerald-400"></i> ${p}</li>`).join('');
-        document.getElementById('ui-pitch').textContent = data.startup.pitch;
-        document.getElementById('ui-competitors').innerHTML = data.startup.competitorInsights.map(c => `<li><i class="ph-fill ph-info text-pal-orange"></i> ${c}</li>`).join('');
+        // Cat 2
+        document.getElementById('c2-7').innerHTML = d.cat2_prod.f7_sprint.map(s => `<li><i class="ph-fill ph-check-circle"></i> ${s}</li>`).join('');
+        document.getElementById('c2-8').innerHTML = d.cat2_prod.f8_learn.map(s => `<li><i class="ph-fill ph-book"></i> ${s}</li>`).join('');
+        document.getElementById('c2-9').innerHTML = d.cat2_prod.f9_skillgap.map(s => `<li><i class="ph-fill ph-target"></i> ${s}</li>`).join('');
+        document.getElementById('c2-10').innerHTML = d.cat2_prod.f10_role.map(s => `<span class="data-tag">${s}</span>`).join('');
+        document.getElementById('c2-11').textContent = d.cat2_prod.f11_time;
+        document.getElementById('c2-12').textContent = d.cat2_prod.f12_bug;
 
-        // --- Productivity ---
-        document.getElementById('ui-sprint').innerHTML = data.productivity.sprint.map(s => `<li><i class="ph-fill ph-flag-checkered text-pal-coralred"></i> ${s}</li>`).join('');
-        document.getElementById('ui-roles').innerHTML = data.productivity.roles.map(r => `<span class="px-3 py-1 bg-pal-orange/10 text-pal-orange text-xs rounded-full border border-pal-orange/20">${r}</span>`).join('');
-        document.getElementById('ui-mvp').textContent = data.productivity.mvp;
+        // Cat 3
+        document.getElementById('c3-13').textContent = d.cat3_biz.f13_viability;
+        document.getElementById('c3-14').innerHTML = d.cat3_biz.f14_competitor.map(s => `<li><i class="ph-fill ph-sword"></i> ${s}</li>`).join('');
+        document.getElementById('c3-15').innerHTML = d.cat3_biz.f15_monetization.map(s => `<li><i class="ph-fill ph-money"></i> ${s}</li>`).join('');
+        document.getElementById('c3-16').textContent = d.cat3_biz.f16_investor;
+        document.getElementById('c3-17').textContent = `"${d.cat3_biz.f17_pitchdeck}"`;
 
-        // --- Career ---
-        document.getElementById('ui-resume-score').textContent = data.career.resumeScore;
-        document.getElementById('ui-recruiter').textContent = data.career.recruiterReaction;
-        document.getElementById('ui-skills').innerHTML = data.productivity.skillGaps.map(s => `<li><i class="ph-fill ph-target text-rose-400"></i> ${s}</li>`).join('');
-        document.getElementById('ui-tags').innerHTML = data.career.tags.map(t => `<span class="px-3 py-1 bg-pal-lightblue/10 text-pal-lightblue text-xs rounded-full border border-pal-lightblue/20">${t}</span>`).join('');
+        // Cat 4
+        document.getElementById('c4-18').textContent = d.cat4_git.f18_repo;
+        document.getElementById('c4-19').textContent = d.cat4_git.f19_readme;
+        document.getElementById('c4-20').textContent = d.cat4_git.f20_codebase;
+        document.getElementById('c4-21').textContent = d.cat4_git.f21_opensource;
+        document.getElementById('c4-22').textContent = d.cat4_git.f22_archquality;
+
+        // Cat 5
+        document.getElementById('c5-23').textContent = d.cat5_code.f23_prd;
+        document.getElementById('c5-24').textContent = d.cat5_code.f24_trd;
+        document.getElementById('c5-25').textContent = d.cat5_code.f25_schema;
+        document.getElementById('c5-26').textContent = d.cat5_code.f26_apiroute;
+        document.getElementById('c5-27').textContent = `"${d.cat5_code.f27_prompt}"`;
+        document.getElementById('c5-28').textContent = d.cat5_code.f28_docs;
+
+        // Cat 6
+        document.getElementById('c6-29').textContent = d.cat6_hack.f29_success;
+        document.getElementById('c6-30').textContent = d.cat6_hack.f30_mvpcomp;
+        document.getElementById('c6-31').textContent = d.cat6_hack.f31_teamopt;
+        document.getElementById('c6-32').textContent = d.cat6_hack.f32_demoday;
+
+        // Cat 7
+        document.getElementById('c7-33').textContent = d.cat7_collab.f33_workspace;
+        document.getElementById('c7-34').textContent = d.cat7_collab.f34_boards;
+        document.getElementById('c7-35').textContent = d.cat7_collab.f35_meeting;
+        document.getElementById('c7-36').textContent = d.cat7_collab.f36_codereview;
+
+        // Cat 8
+        document.getElementById('c8-37').textContent = `"${d.cat8_adv.f37_mentor}"`;
+        document.getElementById('c8-38').textContent = d.cat8_adv.f38_simulator;
+        document.getElementById('c8-39').textContent = d.cat8_adv.f39_risk;
+        document.getElementById('c8-40').textContent = d.cat8_adv.f40_evolution;
+
+        // Cat 9
+        document.getElementById('c9-41').textContent = d.cat9_car.f41_resume;
+        document.getElementById('c9-42').textContent = d.cat9_car.f42_portfolio;
+        document.getElementById('c9-43').textContent = d.cat9_car.f43_align;
+        document.getElementById('c9-44').textContent = `"${d.cat9_car.f44_recruiter}"`;
+
+        // Cat 10
+        document.getElementById('c10-45').textContent = d.cat10_fut.f45_agent;
+        document.getElementById('c10-46').textContent = d.cat10_fut.f46_discovery;
+        document.getElementById('c10-47').textContent = d.cat10_fut.f47_incubator;
+        document.getElementById('c10-48').textContent = d.cat10_fut.f48_rep;
+        document.getElementById('c10-49').textContent = d.cat10_fut.f49_research;
+        document.getElementById('c10-50').textContent = d.cat10_fut.f50_copilot;
 
       }, 1500);
     });
