@@ -6,15 +6,6 @@ const SUPABASE_URL = 'https://ocpfozfavidwghxtcqjw.supabase.co';
 // ⚠️  IMPORTANT: This MUST be the `anon public` JWT key from:
 // Supabase Dashboard → Project Settings → API → "anon public"
 // It starts with "eyJ..." — NOT the publishable key (sb_publishable_...)
-const SUPABASE_ANON_KEY = 'sb_publishable_GJKDKBc_BBmW1c3sU4BGhQ_Z1se-17O';
-
-if (!SUPABASE_ANON_KEY.startsWith('eyJ')) {
-  console.warn(
-    '⚠️ Project Validator AI: Supabase anon key looks incorrect.\n' +
-    'Go to: Supabase Dashboard → Settings → API → "anon public" key\n' +
-    'It must start with "eyJ..." — update SUPABASE_ANON_KEY in supabaseClient.js'
-  );
-}
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jcGZvemZhdmlkd2doeHRjcWp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTEzODgsImV4cCI6MjA5NDA4NzM4OH0.CgIL_jXa6BBYUxpZ_RfMHcWpFugovGgqqDPAn-CJDQo';
 
 window._supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-

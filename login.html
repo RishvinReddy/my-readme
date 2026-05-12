@@ -234,12 +234,7 @@
         <p>Sign in to your project vault</p>
       </div>
 
-      <!-- Key Warning -->
-      <div class="key-warn" id="keyWarn">
-        <strong>⚠️ Supabase key not configured</strong>
-        Sign-in won't work until you add the <code>anon public</code> key to <code>supabaseClient.js</code>.
-        <a href="https://supabase.com/dashboard/project/ocpfozfavidwghxtcqjw/settings/api" target="_blank"> Open API Settings →</a>
-      </div>
+
 
       <!-- Error / Success -->
       <div class="alert err" id="errBanner">
@@ -302,8 +297,7 @@
   <script src="./assets/js/auth.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', async () => {
-    if (typeof SUPABASE_ANON_KEY !== 'undefined' && !SUPABASE_ANON_KEY.startsWith('eyJ'))
-      document.getElementById('keyWarn').style.display = 'block';
+
 
     try { await window.AuthAPI.redirectIfLoggedIn('saved.html'); } catch {}
 
