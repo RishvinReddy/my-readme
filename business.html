@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Model Canvas AI - Project Validator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+  <link href="./assets/css/palette.css" rel="stylesheet">
+  <style>
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(3, minmax(180px, auto));
+      gap: 16px;
+    }
+    .c-block {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .c-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: #fff;
+      font-size: 15px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .c-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 13px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .c-list li {
+      position: relative;
+      padding-left: 16px;
+    }
+    .c-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--color-p1-orange);
+    }
+    
+    /* Layout */
+    .kp { grid-column: span 2; grid-row: span 2; }
+    .ka { grid-column: span 2; grid-row: span 1; }
+    .kr { grid-column: span 2; grid-row: span 1; }
+    .vp { grid-column: span 2; grid-row: span 2; }
+    .cr { grid-column: span 2; grid-row: span 1; }
+    .ch { grid-column: span 2; grid-row: span 1; }
+    .cs { grid-column: span 2; grid-row: span 2; }
+    .cost { grid-column: span 5; grid-row: span 1; }
+    .rev { grid-column: span 5; grid-row: span 1; }
+
+    @media (max-width: 1024px) {
+      .canvas-grid { display: flex; flex-direction: column; }
+      .c-block { min-height: auto; }
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen relative bg-[#06060f]">
+
+  <div class="fixed inset-0 z-0 pointer-events-none opacity-40">
+    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-pal-mustard/20 rounded-full blur-[120px]"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col min-h-screen">
+    <!-- Navbar injected here -->
+
+    <main class="flex-grow flex flex-col items-center py-12 px-6">
+      <div class="w-full max-w-7xl">
+        
+        <div class="text-center mb-10 fade-up-element visible">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pal-mustard/30 bg-pal-mustard/10 text-pal-mustard text-xs font-semibold uppercase tracking-widest mb-4">
+            <i class="ph-fill ph-chart-pie-slice"></i> Startup AI
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Business Model <span class="text-pal-mustard">Canvas</span></h1>
+          <p class="text-slate-400 max-w-2xl mx-auto text-lg">Auto-generate a 9-block startup canvas to validate the business viability of your code.</p>
+        </div>
+
+        <!-- Input -->
+        <div class="glass-card p-6 mb-8 border-pal-mustard/20 max-w-4xl mx-auto">
+          <div class="flex flex-col md:flex-row gap-4">
+            <input type="text" id="ideaInput" class="input-field flex-grow py-3" placeholder="Describe your product (e.g. B2B SaaS for HR compliance)...">
+            <button id="generateBtn" class="btn-primary py-3 px-6 whitespace-nowrap bg-pal-mustard hover:bg-pal-golden border-pal-golden text-dark-900 font-bold shadow-[0_0_20px_rgba(255,208,89,0.3)] !bg-none">
+              <i class="ph ph-magic-wand text-lg"></i> Generate Canvas
+            </button>
+          </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-20">
+          <i class="ph ph-spinner-gap animate-spin text-5xl text-pal-mustard mb-4"></i>
+          <p class="text-slate-400">Modeling business structure...</p>
+        </div>
+
+        <!-- Canvas -->
+        <div id="canvasWrap" class="hidden">
+          <div class="flex justify-end mb-4">
+            <button onclick="window.print()" class="btn-secondary py-1.5 px-3 text-xs"><i class="ph ph-printer"></i> Export PDF</button>
+          </div>
+          
+          <div class="canvas-grid glass-card p-6">
+            <!-- 1. Key Partners -->
+            <div class="c-block kp">
+              <div class="c-head"><i class="ph-fill ph-handshake text-pal-mustard text-lg"></i> Key Partners</div>
+              <ul class="c-list" id="b-kp"></ul>
+            </div>
+            
+            <!-- 2. Key Activities -->
+            <div class="c-block ka">
+              <div class="c-head"><i class="ph-fill ph-wrench text-pal-orange text-lg"></i> Key Activities</div>
+              <ul class="c-list" id="b-ka"></ul>
+            </div>
+            
+            <!-- 3. Key Resources -->
+            <div class="c-block kr">
+              <div class="c-head"><i class="ph-fill ph-database text-pal-lightblue text-lg"></i> Key Resources</div>
+              <ul class="c-list" id="b-kr"></ul>
+            </div>
+            
+            <!-- 4. Value Propositions -->
+            <div class="c-block vp !bg-pal-mustard/5 !border-pal-mustard/30">
+              <div class="c-head text-pal-mustard"><i class="ph-fill ph-gift text-xl"></i> Value Propositions</div>
+              <ul class="c-list text-slate-300" id="b-vp"></ul>
+            </div>
+            
+            <!-- 5. Customer Relationships -->
+            <div class="c-block cr">
+              <div class="c-head"><i class="ph-fill ph-heart text-rose-400 text-lg"></i> Relationships</div>
+              <ul class="c-list" id="b-cr"></ul>
+            </div>
+            
+            <!-- 6. Channels -->
+            <div class="c-block ch">
+              <div class="c-head"><i class="ph-fill ph-truck text-pal-teal text-lg"></i> Channels</div>
+              <ul class="c-list" id="b-ch"></ul>
+            </div>
+            
+            <!-- 7. Customer Segments -->
+            <div class="c-block cs">
+              <div class="c-head"><i class="ph-fill ph-users text-pal-periwinkle text-lg"></i> Customer Segments</div>
+              <ul class="c-list" id="b-cs"></ul>
+            </div>
+            
+            <!-- 8. Cost Structure -->
+            <div class="c-block cost">
+              <div class="c-head"><i class="ph-fill ph-receipt text-rose-500 text-lg"></i> Cost Structure</div>
+              <ul class="c-list" id="b-cost"></ul>
+            </div>
+            
+            <!-- 9. Revenue Streams -->
+            <div class="c-block rev">
+              <div class="c-head"><i class="ph-fill ph-money text-emerald-400 text-lg"></i> Revenue Streams</div>
+              <ul class="c-list" id="b-rev"></ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/nav.js" defer></script>
+  <script>
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      const idea = document.getElementById('ideaInput').value.trim();
+      if (!idea) return window.showToast('Please enter an idea.', 'error');
+
+      document.getElementById('canvasWrap').classList.add('hidden');
+      document.getElementById('loading').classList.remove('hidden');
+
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('canvasWrap').classList.remove('hidden');
+        fillCanvas(idea);
+      }, 1000);
+    });
+
+    function fillCanvas(idea) {
+      const lower = idea.toLowerCase();
+      let d = {};
+
+      if (lower.includes('b2b') || lower.includes('saas')) {
+        d.kp = ['Cloud Providers (AWS/GCP)', 'Integration Partners (Zapier/Stripe)', 'Industry Affiliates'];
+        d.ka = ['Software Development', 'B2B Sales Pipeline', 'Customer Success'];
+        d.kr = ['Engineering Team', 'Proprietary IP/Algorithms', 'Cloud Infrastructure'];
+        d.vp = ['Automate manual business processes', 'Reduce operating costs by 30%', 'Seamless API integrations'];
+        d.cr = ['Dedicated Account Managers', 'Self-serve knowledge base', 'SLA agreements'];
+        d.ch = ['Direct Outbound Sales', 'LinkedIn/B2B Content Marketing', 'Partnership networks'];
+        d.cs = ['Mid-market Enterprises', 'Operations Managers', 'IT Departments'];
+        d.cost = ['Engineering Salaries', 'Cloud Server Costs', 'Sales Commissions'];
+        d.rev = ['Tiered Monthly SaaS Subscriptions', 'Annual Enterprise Contracts', 'Setup/Onboarding Fees'];
+      } 
+      else if (lower.includes('ai') || lower.includes('llm')) {
+        d.kp = ['LLM Providers (OpenAI/Anthropic)', 'Vector DB Hosts (Pinecone)', 'Data Providers'];
+        d.ka = ['Prompt Engineering', 'RAG Pipeline Optimization', 'Marketing & Growth'];
+        d.kr = ['AI Models / API Keys', 'Specialized Datasets', 'GPU Compute'];
+        d.vp = ['Generate content 10x faster', 'Intelligent data insights', '24/7 autonomous agents'];
+        d.cr = ['Community forums (Discord)', 'Self-serve freemium model'];
+        d.ch = ['Twitter/X tech influencers', 'SEO for AI tools', 'ProductHunt launch'];
+        d.cs = ['Tech-savvy early adopters', 'Content creators', 'Developers'];
+        d.cost = ['High LLM API Token Costs', 'Vector Storage Fees', 'Cloud Compute'];
+        d.rev = ['Usage-based Pay-as-you-go', 'Pro tier subscription ($20/mo)', 'API access fees'];
+      }
+      else {
+        d.kp = ['Payment Processors', 'Hosting Providers'];
+        d.ka = ['Product Development', 'Marketing', 'Customer Support'];
+        d.kr = ['Codebase', 'Brand', 'User Data'];
+        d.vp = ['Solves exactly what the user entered', 'Easy to use interface', 'Affordable pricing'];
+        d.cr = ['Automated support', 'Email newsletter'];
+        d.ch = ['Social Media Ads', 'SEO', 'Word of Mouth'];
+        d.cs = ['Mass market consumers', 'Niche hobbyists'];
+        d.cost = ['Development time', 'Marketing budget', 'Hosting fees'];
+        d.rev = ['One-time purchases', 'Ad revenue', 'Freemium upsells'];
+      }
+
+      const populate = (id, arr) => {
+        document.getElementById('b-'+id).innerHTML = arr.map(i => `<li>${i}</li>`).join('');
+      };
+
+      populate('kp', d.kp); populate('ka', d.ka); populate('kr', d.kr);
+      populate('vp', d.vp); populate('cr', d.cr); populate('ch', d.ch);
+      populate('cs', d.cs); populate('cost', d.cost); populate('rev', d.rev);
+    }
+  </script>
+</body>
+</html>

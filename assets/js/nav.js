@@ -104,11 +104,13 @@
 </style>`;
 
   const TOOLS_DATA = [
+    { href:'architecture.html',label:'Architecture AI',   desc:'Generate system diagrams',    icon:'ph-fill ph-tree-structure',bg:'rgba(139,145,221,.1)', color:'var(--color-p6-periwinkle)' },
+    { href:'business.html',    label:'Startup Canvas',    desc:'Business model generator',    icon:'ph-fill ph-chart-pie-slice',bg:'rgba(255,208,89,.1)',  color:'var(--color-p3-mustard)' },
     { href:'roadmap.html',    label:'Roadmap Generator',  desc:'12-week execution plan',      icon:'ph-fill ph-map-trifold',  bg:'rgba(0,145,185,.12)',   color:'var(--color-p4-deepteal)' },
     { href:'prd.html',        label:'PRD Generator',      desc:'Auto-build requirements docs', icon:'ph-fill ph-file-text',    bg:'rgba(149,209,220,.1)',  color:'var(--color-p2-lightblue)' },
     { href:'github.html',     label:'GitHub Analyzer',   desc:'Grade repo portfolio-readiness',icon:'ph-fill ph-github-logo',  bg:'rgba(0,156,154,.1)',   color:'var(--color-p1-teal)' },
     { href:'hackathon.html',  label:'Hackathon Mode',    desc:'24-hour battle plan + win %',   icon:'ph-fill ph-timer',        bg:'rgba(255,105,105,.1)', color:'var(--color-p3-coralred)' },
-    { href:'marketplace.html',label:'Idea Marketplace',  desc:'Browse community projects',     icon:'ph-fill ph-storefront',   bg:'rgba(255,208,89,.1)',  color:'var(--color-p3-mustard)' },
+    { href:'marketplace.html',label:'Idea Marketplace',  desc:'Browse community projects',     icon:'ph-fill ph-storefront',   bg:'rgba(255,131,36,.1)',  color:'var(--color-p1-orange)' },
     { href:'collaborate.html',label:'Team Collaborate',  desc:'Share & invite teammates',      icon:'ph-fill ph-users-three',  bg:'rgba(139,145,221,.1)', color:'var(--color-p6-periwinkle)' },
   ];
 
@@ -157,6 +159,7 @@ ${CSS}
       <div class="np-avatar" id="npAvatar">U</div>
       <div class="np-avatar-menu">
         <div class="np-am-head"><p id="npAMName">User</p><span id="npAMEmail"></span></div>
+        <a href="profile.html"    class="np-am-link"><i class="ph ph-user"></i> My Profile</a>
         <a href="saved.html"      class="np-am-link"><i class="ph ph-folder-open"></i> My Projects</a>
         <a href="collaborate.html"class="np-am-link"><i class="ph ph-users-three"></i> Collaborate</a>
         <div style="height:1px;background:rgba(255,255,255,.06);margin:6px 0;"></div>
@@ -174,11 +177,11 @@ ${CSS}
     <div class="mega-grid">
       <div class="mega-col">
         <p class="mega-section-title">Core Tools</p>
-        ${toolCards(TOOLS_DATA.slice(0,3))}
+        ${toolCards(TOOLS_DATA.slice(0,4))}
       </div>
       <div class="mega-col">
         <p class="mega-section-title">Platform</p>
-        ${toolCards(TOOLS_DATA.slice(3))}
+        ${toolCards(TOOLS_DATA.slice(4))}
       </div>
     </div>
     <div class="mega-footer">

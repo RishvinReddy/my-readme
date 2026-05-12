@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer Profile - Project Validator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+  <link href="./assets/css/palette.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen relative bg-[#06060f]">
+
+  <!-- Background effects -->
+  <div class="fixed inset-0 z-0 pointer-events-none opacity-40">
+    <div class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-pal-orange/20 rounded-full blur-[120px]"></div>
+    <div class="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-pal-deepteal/20 rounded-full blur-[150px]"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col min-h-screen">
+    <!-- Navbar injected here by nav.js -->
+
+    <main class="flex-grow flex justify-center py-12 px-6">
+      <div class="w-full max-w-5xl">
+        
+        <!-- Profile Header -->
+        <div class="glass-card p-8 md:p-12 mb-8 relative overflow-hidden flex flex-col md:flex-row items-center md:items-start gap-8">
+          <div class="absolute inset-0 bg-gradient-to-r from-pal-orange/5 to-pal-deepteal/5 z-0"></div>
+          
+          <div class="relative z-10 w-32 h-32 rounded-full border-4 border-pal-orange/30 shadow-[0_0_30px_rgba(255,131,36,0.3)] bg-gradient-to-br from-pal-orange to-pal-coral flex items-center justify-center flex-shrink-0">
+            <span id="profInitials" class="text-4xl font-bold text-white tracking-wider">...</span>
+          </div>
+
+          <div class="relative z-10 text-center md:text-left flex-grow">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+              <div>
+                <h1 id="profName" class="text-4xl font-bold text-white mb-1">Loading...</h1>
+                <p id="profEmail" class="text-slate-400">@developer</p>
+              </div>
+              <div class="flex gap-3 justify-center md:justify-end">
+                <button class="btn-primary py-2 px-4 text-sm"><i class="ph ph-user-plus"></i> Follow</button>
+                <button class="btn-secondary py-2 px-4 text-sm"><i class="ph ph-share-network"></i> Share</button>
+              </div>
+            </div>
+
+            <p class="text-slate-300 max-w-2xl text-sm leading-relaxed mb-6">
+              Full-stack developer and system architect. Building scalable SaaS products and exploring AI implementations. Regular contributor to the Idea Marketplace.
+            </p>
+
+            <div class="flex flex-wrap justify-center md:justify-start gap-6">
+              <div class="flex items-center gap-2">
+                <i class="ph-fill ph-trophy text-pal-golden text-xl"></i>
+                <div>
+                  <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Global Rank</p>
+                  <p class="text-lg font-bold text-white">Top <span id="profRank">...</span>%</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="ph-fill ph-arrow-fat-up text-pal-orange text-xl"></i>
+                <div>
+                  <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Upvotes</p>
+                  <p class="text-lg font-bold text-white" id="profVotes">...</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="ph-fill ph-lightbulb text-pal-teal text-xl"></i>
+                <div>
+                  <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Ideas Published</p>
+                  <p class="text-lg font-bold text-white" id="profIdeas">...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex gap-4 mb-6 border-b border-white/10 pb-4">
+          <button class="text-pal-orange font-semibold border-b-2 border-pal-orange px-2 pb-2">Published Ideas</button>
+          <button class="text-slate-500 hover:text-white font-medium px-2 pb-2 transition-colors">Bookmarks</button>
+          <button class="text-slate-500 hover:text-white font-medium px-2 pb-2 transition-colors">Contributions</button>
+        </div>
+
+        <!-- Projects Grid -->
+        <div id="ideasGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="col-span-full py-12 text-center text-slate-500">
+            <i class="ph ph-spinner-gap animate-spin text-4xl mb-4 text-pal-orange"></i>
+            <p>Loading portfolio...</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/nav.js" defer></script>
+  <script src="./assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Get user to display (from URL ?user=ID or fallback to logged in user)
+      const urlParams = new URLSearchParams(window.location.search);
+      let targetUserId = urlParams.get('id');
+      let isOwnProfile = false;
+      let userData = null;
+
+      const sessionUser = await window.AuthAPI.getUser();
+      
+      if (!targetUserId) {
+        if (!sessionUser) {
+          window.location.href = 'login.html';
+          return;
+        }
+        targetUserId = sessionUser.id;
+        isOwnProfile = true;
+        userData = sessionUser;
+      } else {
+        isOwnProfile = (sessionUser && sessionUser.id === targetUserId);
+      }
+
+      // If viewing someone else, we only know their info from their marketplace posts.
+      // 2. Fetch Marketplace Posts
+      let posts = [];
+      let authorName = 'Developer';
+      
+      try {
+        const { data, error } = await window._supabase
+          .from('marketplace')
+          .select('*')
+          .eq('user_id', targetUserId)
+          .order('createdAt', { ascending: false });
+        
+        if (error) throw error;
+        posts = data || [];
+        if (posts.length > 0) authorName = posts[0].author;
+      } catch (err) {
+        console.error("Error fetching posts:", err);
+      }
+
+      // If own profile, use auth details
+      if (isOwnProfile && userData) {
+        authorName = userData.user_metadata?.display_name || userData.email.split('@')[0];
+        document.getElementById('profEmail').textContent = userData.email;
+      } else {
+        document.getElementById('profEmail').textContent = `@${authorName.toLowerCase().replace(/\s+/g,'')}`;
+      }
+
+      // 3. Update Header Stats
+      const initials = authorName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() || 'U';
+      document.getElementById('profInitials').textContent = initials;
+      document.getElementById('profName').textContent = authorName;
+      
+      document.getElementById('profIdeas').textContent = posts.length;
+      
+      const totalVotes = posts.reduce((sum, p) => sum + (p.votes || 0), 0);
+      document.getElementById('profVotes').textContent = totalVotes;
+      
+      // Fake rank calculation based on votes
+      let rank = 50;
+      if (totalVotes > 100) rank = 5;
+      else if (totalVotes > 50) rank = 10;
+      else if (totalVotes > 10) rank = 25;
+      document.getElementById('profRank').textContent = rank;
+
+      // 4. Render Grid
+      const grid = document.getElementById('ideasGrid');
+      if (posts.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-20 text-center glass-card rounded-2xl border border-white/5">
+            <i class="ph ph-folder-dashed text-6xl text-slate-700 mb-4 block"></i>
+            <p class="text-slate-400 font-medium">No ideas published yet.</p>
+            ${isOwnProfile ? '<a href="marketplace.html" class="btn-primary inline-flex mt-6"><i class="ph ph-plus"></i> Publish an Idea</a>' : ''}
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = '';
+      posts.forEach(p => {
+        const c = p.tier === 'Tier 5' ? 'emerald' : p.tier === 'Tier 4' ? 'pal-orange' : p.tier === 'Tier 3' ? 'pal-lightblue' : 'slate';
+        grid.innerHTML += `
+          <a href="marketplace.html" class="glass-card p-6 flex flex-col border-${c}/20 hover:border-${c}/50 transition-all hover:-translate-y-1 block text-left no-underline group cursor-pointer">
+            <div class="flex justify-between items-start mb-3">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-${c}/10 text-${c} border border-${c}/20 font-medium">${p.domain || 'Tech'}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-white">${p.totalScore||'?'}/100</span>
+                <div class="flex items-center gap-1 text-xs text-pal-orange">
+                  <i class="ph-fill ph-arrow-fat-up"></i>
+                  <span>${p.votes||0}</span>
+                </div>
+              </div>
+            </div>
+            <h3 class="font-bold text-white mb-1 group-hover:text-pal-orange transition-colors">${p.name}</h3>
+            <span class="text-xs text-slate-500 mb-2">${p.tier||'Unrated'} · ${p.verdict||''}</span>
+            <p class="text-sm text-slate-400 flex-grow mb-4 line-clamp-2">${p.oneLineIdea||p.problemStatement||'—'}</p>
+            <div class="mt-auto pt-3 border-t border-white/5 text-xs text-slate-600">
+              Published ${new Date(p.createdAt).toLocaleDateString()}
+            </div>
+          </a>`;
+      });
+    });
+  </script>
+</body>
+</html>

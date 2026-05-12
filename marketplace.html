@@ -173,6 +173,29 @@
     </div>
   </div>
 
+  <!-- Comments Modal -->
+  <div id="commentsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-dark-950/80 backdrop-blur-sm">
+    <div class="glass-card p-0 w-full max-w-2xl max-h-[90vh] overflow-hidden border border-white/10 flex flex-col">
+      <div class="p-6 border-b border-white/5 flex items-center justify-between bg-dark-900/50">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="ph-fill ph-chat-teardrop text-primary-400"></i> Discussion</h2>
+          <p id="commentIdeaName" class="text-sm text-slate-400 mt-1">Idea Name</p>
+        </div>
+        <button onclick="closeComments()" class="text-slate-500 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <div id="commentsList" class="flex-grow p-6 overflow-y-auto space-y-4 bg-dark-950/30">
+        <!-- Comments injected here -->
+        <div class="text-center py-10"><i class="ph ph-spinner-gap animate-spin text-3xl text-slate-600"></i></div>
+      </div>
+
+      <div class="p-6 border-t border-white/5 bg-dark-900/50 flex gap-3">
+        <input type="text" id="newCommentInput" class="input-field flex-grow" placeholder="Add to the discussion... (Must be logged in)">
+        <button onclick="postComment()" class="btn-primary py-2 px-6"><i class="ph ph-paper-plane-right"></i></button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./assets/js/supabaseClient.js"></script>
   <script src="./assets/js/nav.js" defer></script>
@@ -286,6 +309,9 @@
             <div class="flex items-center gap-2">
               ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" class="text-slate-500 hover:text-white transition-colors" title="GitHub"><i class="ph ph-github-logo"></i></a>` : ''}
               ${p.demoUrl   ? `<a href="${p.demoUrl}"   target="_blank" class="text-slate-500 hover:text-primary-400 transition-colors text-xs flex items-center gap-0.5">Demo <i class="ph ph-arrow-square-out text-xs"></i></a>` : ''}
+              <button onclick="openComments('${p.id}')" class="text-xs text-slate-500 hover:text-primary-400 transition-colors flex items-center gap-1" title="Discuss">
+                <i class="ph ph-chat-teardrop"></i> Discuss
+              </button>
               <button onclick="forkIdea('${p.id}')" class="text-xs text-slate-500 hover:text-accent-400 transition-colors flex items-center gap-1" title="Fork this idea">
                 <i class="ph ph-git-fork"></i> Fork
               </button>
@@ -407,6 +433,82 @@
       if (score >= 65) return 'Tier 3';
       if (score >= 50) return 'Tier 2';
       return 'Tier 1';
+    }
+
+    // ── Comments ───────────────────────────────────────────────────────────
+    let currentActivePostId = null;
+
+    function closeComments() { document.getElementById('commentsModal').classList.replace('flex', 'hidden'); }
+    
+    async function openComments(id) {
+      currentActivePostId = id;
+      const post = allPosts.find(p => p.id === id);
+      document.getElementById('commentIdeaName').textContent = post ? post.name : 'Idea';
+      document.getElementById('commentsModal').classList.replace('hidden', 'flex');
+      
+      const list = document.getElementById('commentsList');
+      list.innerHTML = '<div class="text-center py-10"><i class="ph ph-spinner-gap animate-spin text-3xl text-slate-600"></i></div>';
+
+      try {
+        const { data, error } = await window._supabase
+          .from('marketplace_comments')
+          .select('*')
+          .eq('post_id', id)
+          .order('created_at', { ascending: true });
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          list.innerHTML = '<div class="text-center py-10 text-slate-500">No comments yet. Start the discussion!</div>';
+        } else {
+          list.innerHTML = data.map(c => `
+            <div class="flex gap-3">
+              <div class="w-8 h-8 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center font-bold text-xs shrink-0">${c.author_name ? c.author_name[0].toUpperCase() : 'U'}</div>
+              <div class="glass-card p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl border-white/5 bg-white/[0.02] max-w-[85%]">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-bold text-white">${c.author_name}</span>
+                  <span class="text-[10px] text-slate-600">${new Date(c.created_at).toLocaleDateString()}</span>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">${c.content}</p>
+              </div>
+            </div>
+          `).join('');
+        }
+        list.scrollTop = list.scrollHeight;
+      } catch (err) {
+        list.innerHTML = '<div class="text-center py-10 text-rose-500">Failed to load comments (Did you run the SQL migration?)</div>';
+      }
+    }
+
+    async function postComment() {
+      const input = document.getElementById('newCommentInput');
+      const content = input.value.trim();
+      if (!content) return;
+      if (!currentActivePostId) return;
+
+      const user = await window.AuthAPI.getUser();
+      if (!user) {
+        window.showToast('You must be logged in to comment.', 'error');
+        return;
+      }
+
+      input.disabled = true;
+      try {
+        const { error } = await window._supabase.from('marketplace_comments').insert({
+          post_id: currentActivePostId,
+          user_id: user.id,
+          author_name: user.user_metadata?.display_name || user.email.split('@')[0],
+          content: content
+        });
+        if (error) throw error;
+        
+        input.value = '';
+        await openComments(currentActivePostId); // reload
+      } catch (err) {
+        window.showToast('Failed to post comment.', 'error');
+      } finally {
+        input.disabled = false;
+      }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {

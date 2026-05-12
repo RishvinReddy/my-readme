@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture Visualizer - Project Validator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Mermaid.js for Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <link href="./assets/css/output.css" rel="stylesheet">
+  <link href="./assets/css/palette.css" rel="stylesheet">
+</head>
+<body class="flex flex-col min-h-screen relative bg-[#06060f]">
+
+  <div class="fixed inset-0 z-0 pointer-events-none opacity-40">
+    <div class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-pal-periwinkle/20 rounded-full blur-[120px]"></div>
+    <div class="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-pal-deepteal/20 rounded-full blur-[150px]"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col min-h-screen">
+    <!-- Navbar injected here by nav.js -->
+
+    <main class="flex-grow flex flex-col items-center py-12 px-6">
+      <div class="w-full max-w-6xl">
+        
+        <!-- Header -->
+        <div class="text-center mb-10 fade-up-element visible">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pal-periwinkle/30 bg-pal-periwinkle/10 text-pal-periwinkle text-xs font-semibold uppercase tracking-widest mb-4">
+            <i class="ph-fill ph-graph"></i> System Design AI
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Architecture <span class="grad-periwinkle-lightblue">Visualizer</span></h1>
+          <p class="text-slate-400 max-w-2xl mx-auto text-lg">Generate a complete system architecture diagram and tech stack recommendation for your project idea.</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="glass-card p-6 md:p-8 mb-8 fade-up-element visible border-pal-periwinkle/20">
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-grow relative">
+              <i class="ph ph-lightbulb absolute left-4 top-1/2 -translate-y-1/2 text-pal-periwinkle text-xl"></i>
+              <input type="text" id="ideaInput" class="input-field w-full pl-12 py-4 text-lg" placeholder="e.g., An AI-powered SaaS for analyzing legal documents...">
+            </div>
+            <button id="generateBtn" class="btn-primary py-4 px-8 whitespace-nowrap" style="background: linear-gradient(135deg, var(--color-p6-periwinkle), var(--color-p2-deepblue)); box-shadow: 0 0 20px rgba(139,145,221,0.3);">
+              <i class="ph ph-magic-wand text-xl"></i> Generate Architecture
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden text-center py-20">
+          <i class="ph ph-spinner-gap animate-spin text-5xl text-pal-periwinkle mb-4"></i>
+          <p class="text-slate-400 text-lg">Designing scalable system architecture...</p>
+        </div>
+
+        <!-- Output Section -->
+        <div id="outputSection" class="hidden space-y-6">
+          
+          <!-- Diagram Card -->
+          <div class="glass-card p-6 md:p-8 border-pal-periwinkle/20">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="ph-fill ph-tree-structure text-pal-periwinkle"></i> System Flow Diagram</h2>
+              <button onclick="downloadSVG()" class="btn-secondary py-1.5 px-3 text-xs"><i class="ph ph-download-simple"></i> SVG</button>
+            </div>
+            <div class="bg-[#0b0b14] rounded-xl border border-white/5 p-6 overflow-x-auto flex justify-center">
+              <div id="mermaidContainer" class="mermaid"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Tech Stack Card -->
+            <div class="glass-card p-6 border-pal-lightblue/20">
+              <h2 class="text-xl font-bold text-white flex items-center gap-2 mb-6"><i class="ph-fill ph-stack text-pal-lightblue"></i> Recommended Tech Stack</h2>
+              <div id="techStackList" class="space-y-4"></div>
+            </div>
+
+            <!-- Pros/Cons Card -->
+            <div class="glass-card p-6 border-pal-orange/20">
+              <h2 class="text-xl font-bold text-white flex items-center gap-2 mb-6"><i class="ph-fill ph-scales text-pal-orange"></i> Architecture Analysis</h2>
+              
+              <h3 class="text-sm font-bold text-emerald-400 mb-2 uppercase tracking-wide">Advantages</h3>
+              <ul id="prosList" class="space-y-2 mb-6"></ul>
+
+              <h3 class="text-sm font-bold text-rose-400 mb-2 uppercase tracking-wide">Challenges & Bottlenecks</h3>
+              <ul id="consList" class="space-y-2"></ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/supabaseClient.js"></script>
+  <script src="./assets/js/nav.js" defer></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#0a0d1f',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#8b91dd',
+        lineColor: '#64748b',
+        secondaryColor: '#1a77a3',
+        tertiaryColor: '#06060f'
+      },
+      flowchart: { curve: 'basis' }
+    });
+
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      const idea = document.getElementById('ideaInput').value.trim();
+      if (!idea) return window.showToast('Please enter an idea first.', 'error');
+      
+      document.getElementById('outputSection').classList.add('hidden');
+      document.getElementById('loadingState').classList.remove('hidden');
+
+      setTimeout(() => {
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('outputSection').classList.remove('hidden');
+        generateArchitecture(idea);
+      }, 1500);
+    });
+
+    function generateArchitecture(idea) {
+      const lower = idea.toLowerCase();
+      let arch = {
+        diagram: '',
+        stack: [],
+        pros: [],
+        cons: []
+      };
+
+      // Rule-based logic
+      if (lower.includes('ai') || lower.includes('llm') || lower.includes('gpt')) {
+        arch.diagram = `
+graph TD
+    Client["Client App (React/Next.js)"] -->|HTTPS / WSS| API["API Gateway (Vercel/Cloudflare)"]
+    API --> Auth["Auth & Users (Supabase)"]
+    API --> DB[("Vector DB (Pinecone/PgVector)")]
+    API --> Cache["Cache (Upstash Redis)"]
+    API --> LLM["LLM Provider (OpenAI/Anthropic)"]
+    LLM --> API
+    Cache --> API
+    DB --> API
+        `;
+        arch.stack = [
+          { role: 'Frontend', name: 'Next.js + TailwindCSS', icon: 'ph-browsers' },
+          { role: 'Backend', name: 'Vercel Serverless + Edge', icon: 'ph-server' },
+          { role: 'Database', name: 'Supabase + PgVector', icon: 'ph-database' },
+          { role: 'AI Layer', name: 'OpenAI API + LangChain', icon: 'ph-brain' }
+        ];
+        arch.pros = ["Fast time to market", "Built-in embeddings support", "Serverless scaling"];
+        arch.cons = ["High LLM API costs at scale", "Cold starts on serverless", "Latency dependency on 3rd party APIs"];
+      } 
+      else if (lower.includes('realtime') || lower.includes('chat') || lower.includes('collaboration')) {
+        arch.diagram = `
+graph TD
+    Client["Client App (React/Vue)"] -->|WebSockets| Socket["Realtime Server (Socket.io/Centrifugo)"]
+    Client -->|REST/GraphQL| API["Backend Service (Node.js/Go)"]
+    API --> DB[("Primary DB (PostgreSQL)")]
+    API --> Cache[("In-Memory Store (Redis)")]
+    Socket <--> Cache
+    Cache --> API
+        `;
+        arch.stack = [
+          { role: 'Frontend', name: 'React + Zustand', icon: 'ph-browsers' },
+          { role: 'Backend', name: 'Node.js Express / Go', icon: 'ph-server' },
+          { role: 'Realtime', name: 'Socket.io + Redis Pub/Sub', icon: 'ph-lightning' },
+          { role: 'Database', name: 'PostgreSQL', icon: 'ph-database' }
+        ];
+        arch.pros = ["True real-time sync", "Highly responsive UI", "Redis prevents websocket bottlenecks"];
+        arch.cons = ["State management is complex", "Scaling websockets requires sticky sessions", "Higher infrastructure cost"];
+      }
+      else {
+        // Standard SaaS
+        arch.diagram = `
+graph TD
+    Client["Web App (Next.js/React)"] -->|HTTPS| API["Backend API (Node/Python/Ruby)"]
+    API --> Auth["Identity (Supabase Auth/Clerk)"]
+    API --> DB[("Relational DB (PostgreSQL)")]
+    API --> Stripe["Payments (Stripe)"]
+    API --> Storage["Blob Storage (S3/R2)"]
+        `;
+        arch.stack = [
+          { role: 'Frontend', name: 'React / Next.js', icon: 'ph-browsers' },
+          { role: 'Backend', name: 'Node.js / Express', icon: 'ph-server' },
+          { role: 'Database', name: 'Supabase PostgreSQL', icon: 'ph-database' },
+          { role: 'Payments', name: 'Stripe', icon: 'ph-credit-card' }
+        ];
+        arch.pros = ["Proven, battle-tested architecture", "Huge ecosystem of packages", "Easy to hire developers for"];
+        arch.cons = ["Monolithic backend can get messy over time", "Standard boilerplate required"];
+      }
+
+      // Render Mermaid
+      const container = document.getElementById('mermaidContainer');
+      container.innerHTML = arch.diagram;
+      container.removeAttribute('data-processed'); // force re-render
+      mermaid.init(undefined, container);
+
+      // Render Stack
+      document.getElementById('techStackList').innerHTML = arch.stack.map(s => `
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+          <div class="w-10 h-10 rounded-lg bg-pal-lightblue/10 text-pal-lightblue flex items-center justify-center text-xl shrink-0"><i class="${s.icon}"></i></div>
+          <div>
+            <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">${s.role}</p>
+            <p class="text-white font-medium">${s.name}</p>
+          </div>
+        </div>
+      `).join('');
+
+      // Render Pros/Cons
+      document.getElementById('prosList').innerHTML = arch.pros.map(p => `
+        <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="ph-fill ph-check-circle text-emerald-500 mt-0.5"></i> ${p}</li>
+      `).join('');
+      document.getElementById('consList').innerHTML = arch.cons.map(c => `
+        <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="ph-fill ph-warning-circle text-rose-500 mt-0.5"></i> ${c}</li>
+      `).join('');
+    }
+
+    function downloadSVG() {
+      const svg = document.querySelector('#mermaidContainer svg');
+      if (!svg) return;
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'architecture.svg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
