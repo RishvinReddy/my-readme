@@ -1,4 +1,4 @@
-# 🚀 Project Validator AI
+#  Project Validator AI
 
 <div align="center">
   <h3>Stop building generic tutorials. Build startup-ready projects.</h3>
@@ -7,24 +7,24 @@
 
 ---
 
-## 🌟 Overview
+##  Overview
 
 **Project Validator AI** is a premium, serverless web application that helps developers and founders evaluate their project ideas. Instead of jumping blindly into coding, use this tool to score your idea across Market, Technical, and Financial dimensions. 
 
 Built with a stunning **Deep Onyx & Neon Glow** aesthetic, this tool utilizes advanced glassmorphism and fully persistent local storage to act as your personal "Startup Idea Hub".
 
-## ✨ Key Features
+##  Key Features
 
-- 🧙 **Multi-Step Analysis Wizard**: A smooth, 5-step interactive form to capture project concepts, technical stack, competitors, and financial projections.
-- 📊 **Dynamic Radar Charts**: Instantly visualize your project's strengths and weaknesses (Innovation, Scalability, Market Need, etc.) using beautifully rendered `Chart.js` radar diagrams.
-- 📋 **Interactive MVP Kanban Board**: The system auto-generates a 10-phase execution plan. Use the built-in drag-and-drop Kanban board (To Do, In Progress, Done) to actively track your project's build.
-- 💰 **Monetization & Break-Even Calculator**: Input your server costs and SaaS pricing to automatically calculate how many paid users you need to break even.
-- 🧠 **Tech Stack Recommender**: Auto-suggests the ideal modern tech stack (e.g., Next.js, Supabase, Solidity) based on your domain and deployment target.
-- 🔥 **"Roast My Idea" AI Mode**: Get brutally honest, dynamic feedback on your project based on your scorecard metrics.
-- 💾 **100% Serverless & Persistent**: All project data is securely saved to your browser's `localStorage`. Export and import your data anytime via `.json` backups.
-- 📄 **PDF Export**: Generate professional PDF reports of your project dashboard with a single click.
+-  **Multi-Step Analysis Wizard**: A smooth, 5-step interactive form to capture project concepts, technical stack, competitors, and financial projections.
+-  **Dynamic Radar Charts**: Instantly visualize your project's strengths and weaknesses (Innovation, Scalability, Market Need, etc.) using beautifully rendered `Chart.js` radar diagrams.
+-  **Interactive MVP Kanban Board**: The system auto-generates a 10-phase execution plan. Use the built-in drag-and-drop Kanban board (To Do, In Progress, Done) to actively track your project's build.
+-  **Monetization & Break-Even Calculator**: Input your server costs and SaaS pricing to automatically calculate how many paid users you need to break even.
+-  **Tech Stack Recommender**: Auto-suggests the ideal modern tech stack (e.g., Next.js, Supabase, Solidity) based on your domain and deployment target.
+-  **"Roast My Idea" AI Mode**: Get brutally honest, dynamic feedback on your project based on your scorecard metrics.
+-  **100% Serverless & Persistent**: All project data is securely saved to your browser's `localStorage`. Export and import your data anytime via `.json` backups.
+-  **PDF Export**: Generate professional PDF reports of your project dashboard with a single click.
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - **Frontend**: HTML5, Vanilla JavaScript
 - **Styling**: Tailwind CSS (compiled via CLI)
@@ -33,7 +33,7 @@ Built with a stunning **Deep Onyx & Neon Glow** aesthetic, this tool utilizes ad
 - **PDF Generation**: html2pdf.js
 - **Storage**: Browser LocalStorage API
 
-## 📐 Architecture & Data Flow
+##  Architecture & Data Flow
 
 ```mermaid
 graph TD
@@ -48,7 +48,7 @@ graph TD
     G -->|Allows| I[JSON Export / Import]
 ```
 
-## 🎨 Design System
+##  Design System
 
 The application utilizes a custom **"Onyx & Neon Glow"** theme:
 - **Background**: Deep Onyx / Zinc-950 (`#09090b`)
@@ -56,7 +56,7 @@ The application utilizes a custom **"Onyx & Neon Glow"** theme:
 - **Secondary Accent**: Electric Cyan (`#06b6d4`)
 - **Surfaces**: Ultra-transparent frosted glass (`bg-white/[0.02]`) with tight, bright borders and dynamic animated drifting background lighting.
 
-## 🚀 Getting Started
+##  Getting Started
 
 Since this project is completely serverless, no backend setup is required.
 
@@ -79,5 +79,5 @@ Since this project is completely serverless, no backend setup is required.
 4. **Run Locally:**
    Simply open `index.html` in your favorite modern browser. No dev server is strictly required, though you can use `Live Server` in VSCode for auto-reloading.
 
-## 🤝 Contributing
+##  Contributing
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
